@@ -105,7 +105,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const materialHeaders = [
         { key: 'ID', label: 'ID' },
         { key: 'Название', label: 'Название' },
-        { key: 'Ед.изм.', label: 'Ед.изм.' },
         { key: 'Мин. остаток', label: 'Мин. остаток' },
         { key: 'Наличие (принято по акту ед.)', label: 'Наличие (принято по акту ед.)' },
         { key: 'Остаток', label: 'Остаток' },
