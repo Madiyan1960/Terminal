@@ -152,29 +152,33 @@ hr {
         display: none; /* Скрываем сообщения о загрузке при печати */
     }
 
-    /* ДОПОЛНИТЕЛЬНО: СТИЛИ ДЛЯ НАСТРОЙКИ ШИРИНЫ КОЛОНОК ДЛЯ КАЖДОЙ ТАБЛИЦЫ */
-    /* ВАЖНО: Чтобы это работало, вашим таблицам в HTML нужно дать уникальные классы,
-       например, <table class="materials-table">, <table class="balances-table"> и т.д.
-       Иначе эти стили будут применяться ко ВСЕМ таблицам.
-    */
+    /* СТИЛИ ДЛЯ НАСТРОЙКИ ШИРИНЫ КОЛОНОК ДЛЯ КАЖДОЙ ТАБЛИЦЫ В РЕЖИМЕ ПЕЧАТИ */
+    /* Убедитесь, что сумма процентов для каждой таблицы около 100% */
 
-    /* Пример для таблицы "Материалы" (предполагается class="materials-table") */
-     .materials-table th:nth-child(1) { width: 5%; }  // ID */
-    /* .materials-table th:nth-child(2) { width: 30%; } // Название */
-    /* .materials-table th:nth-child(3) { width: 10%; } // Ед.изм. */
-    /* .materials-table th:nth-child(4) { width: 15%; } // Мин. остаток */
-    /* .materials-table th:nth-child(5) { width: 20%; } // Наличие */
-    /* .materials-table th:nth-child(6) { width: 10%; } // Остаток */
-    /* .materials-table th:nth-child(7) { width: 10%; } // Оповещение */
+    /* Таблица "Материалы" (class="materials-table") */
+    .materials-table th:nth-child(1) { width: 5%; }  /* ID */
+    .materials-table th:nth-child(2) { width: 25%; } /* Название */
+    .materials-table th:nth-child(3) { width: 8%; }  /* Ед.изм. */
+    .materials-table th:nth-child(4) { width: 12%; } /* Мин. остаток */
+    .materials-table th:nth-child(5) { width: 20%; } /* Наличие (принято по акту ед.) */
+    .materials-table th:nth-child(6) { width: 15%; } /* Остаток */
+    .materials-table th:nth-child(7) { width: 15%; } /* Оповещение */
 
-    /* Пример для таблицы "Остатки" (предполагается class="balances-table") */
-    /* .balances-table th:nth-child(1) { width: 40%; } // Материал */
-    /* .balances-table th:nth-child(2) { width: 15%; } // Наличие */
-    /* .balances-table th:nth-child(3) { width: 10%; } // Приход */
-    /* .balances-table th:nth-child(4) { width: 10%; } // Расход */
-    /* .balances-table th:nth-child(5) { width: 10%; } // Списание */
-    /* .balances-table th:nth-child(6) { width: 10%; } // Возврат */
-    /* .balances-table th:nth-child(7) { width: 5%; }  // Остаток */
+    /* Таблица "Остатки" (class="balances-table") */
+    .balances-table th:nth-child(1) { width: 30%; } /* Материал */
+    .balances-table th:nth-child(2) { width: 15%; } /* Наличие (принято по акту ед.) */
+    .balances-table th:nth-child(3) { width: 10%; } /* Приход */
+    .balances-table th:nth-child(4) { width: 10%; } /* Расход */
+    .balances-table th:nth-child(5) { width: 10%; } /* Списание */
+    .balances-table th:nth-child(6) { width: 10%; } /* Возврат */
+    .balances-table th:nth-child(7) { width: 15%; } /* Остаток */
 
-    /* ... и так далее для других таблиц, если они есть ... */
+    /* Таблица "Транзакции" (class="transactions-table") */
+    .transactions-table th:nth-child(1) { width: 10%; } /* Дата */
+    .transactions-table th:nth-child(2) { width: 15%; } /* Сотрудник */
+    .transactions-table th:nth-child(3) { width: 15%; } /* Поставщик */
+    .transactions-table th:nth-child(4) { width: 20%; } /* Материал */
+    .transactions-table th:nth-child(5) { width: 8%; }  /* Тип */
+    .transactions-table th:nth-child(6) { width: 7%; }  /* Кол-во */
+    .transactions-table th:nth-child(7) { width: 25%; } /* Комментарий */
 }
