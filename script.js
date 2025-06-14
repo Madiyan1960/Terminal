@@ -67,8 +67,9 @@ function parseCsv(csvString) {
 // --- Конец старой функции ---
 
 
-// Функция для отображения данных в таблице (остается без изменений)
-function renderTable(data, containerId, headersMap) {
+// Функция для отображения данных в таблице
+// ДОБАВЛЕН НОВЫЙ ПАРАМЕТР: uniqueByKey для фильтрации по уникальным значениям
+function renderTable(data, containerId, headersMap, uniqueByKey = null) {
     const container = document.getElementById(containerId);
     const loadingMessage = container.previousElementSibling;
     
@@ -81,12 +82,37 @@ function renderTable(data, containerId, headersMap) {
         return;
     }
 
+    let processedData = data;
+
+    // --- НОВАЯ ЛОГИКА: Фильтрация для получения уникальных записей ---
+    if (uniqueByKey && data.length > 0) {
+        const seenKeys = new Set(); // Используем Set для отслеживания уже встреченных значений
+        processedData = data.filter(row => {
+            const keyValue = row[uniqueByKey];
+            // Пропускаем строки, если ключ пуст, неопределен, или его значение уже встречалось
+            if (keyValue === null || keyValue === undefined || seenKeys.has(keyValue)) {
+                return false; 
+            }
+            seenKeys.add(keyValue); // Добавляем текущее значение в Set
+            return true; // Включаем строку в отфильтрованные данные
+        });
+
+        if (processedData.length === 0 && data.length > 0) {
+            // Если все строки были отфильтрованы (например, все дубликаты или пустые ключи)
+            console.warn(`Все строки были отфильтрованы при попытке получить уникальные значения по ключу "${uniqueByKey}". Проверьте данные или ключ.`);
+            container.innerHTML = `<p>Нет уникальных данных по полю "${headersMap.find(h => h.key === uniqueByKey)?.label || uniqueByKey}".</p>`;
+            return;
+        }
+    }
+    // --- КОНЕЦ НОВОЙ ЛОГИКИ ---
+
+
     const table = document.createElement('table');
     const thead = table.createTHead();
     const tbody = table.createTBody();
     const headerRow = thead.insertRow();
 
-    const displayHeaders = headersMap || Object.keys(data[0]).map(key => ({ key, label: key }));
+    const displayHeaders = headersMap || Object.keys(processedData[0]).map(key => ({ key, label: key }));
 
     displayHeaders.forEach(h => {
         const th = document.createElement('th');
@@ -94,11 +120,10 @@ function renderTable(data, containerId, headersMap) {
         headerRow.appendChild(th);
     });
 
-    data.forEach(rowData => {
+    processedData.forEach(rowData => { // Теперь используем processedData (отфильтрованные)
         const row = tbody.insertRow();
         displayHeaders.forEach(h => {
             const cell = row.insertCell();
-            // Papa Parse может возвращать null/undefined для пустых ячеек, обрабатываем это
             cell.textContent = rowData[h.key] !== null && rowData[h.key] !== undefined ? rowData[h.key] : '';
         });
     });
@@ -114,11 +139,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Скачайте CSV-файл и проверьте первую строку, чтобы убедиться!
     
     // --- Загружаем материалы ---
-    // Проверьте названия столбцов в вашем CSV для листа "Материалы"
     const materialHeaders = [
         { key: 'ID', label: 'ID' },
         { key: 'Название', label: 'Название' },
-        { key: 'Ед.изм.', label: 'Ед.изм.' }, // Если у вас такой столбец
+        { key: 'Ед.изм.', label: 'Ед.изм.' }, // Проверьте, что в CSV есть столбец 'Ед.изм.'
         { key: 'Мин. остаток', label: 'Мин. остаток' },
         { key: 'Наличие (принято по акту ед.)', label: 'Наличие (принято по акту ед.)' }, // Это очень длинное название, убедитесь что оно ТОЧНО такое в CSV
         { key: 'Остаток', label: 'Остаток' },
@@ -126,7 +150,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     ];
     const materialsData = await loadCsvData(MATERIALS_CSV_URL);
     if (materialsData) {
-        renderTable(materialsData, 'materials-table-container', materialHeaders);
+        // --- ИЗМЕНЕНИЕ ВЫЗОВА: Добавляем 'Название' как ключ для уникальности ---
+        renderTable(materialsData, 'materials-table-container', materialHeaders, 'Название');
     } else {
         document.getElementById('materials-table-container').innerHTML = '<p class="error-message">Не удалось загрузить данные о материалах. Проверьте URL или настройки публикации.</p>';
         document.getElementById('materials-loading').style.display = 'none';
@@ -138,11 +163,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     const transactionHeaders = [
         { key: 'Дата', label: 'Дата' },
         { key: 'Сотрудник', label: 'Сотрудник' },
-        { key: 'Поставщик', label: 'Поставщик' }, // Проверьте точное название в CSV
+        { key: 'Поставщик', label: 'Поставщик' },
         { key: 'Материал', label: 'Материал' },
         { key: 'Тип', label: 'Тип' },
-        { key: 'Кол-во', label: 'Кол-во' }, // Проверьте точное название в CSV
-        { key: 'Комментарий', label: 'Комментарий' }, // Проверьте точное название в CSV}
+        { key: 'Кол-во', label: 'Кол-во' },
+        { key: 'Комментарий', label: 'Комментарий' },
     ];
     const transactionsData = await loadCsvData(TRANSACTIONS_CSV_URL);
     if (transactionsData) {
