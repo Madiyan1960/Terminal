@@ -1,15 +1,9 @@
 // script.js
 
 // Вставьте сюда ссылки на опубликованные CSV-файлы из вашей Google Таблицы
-const MATERIALS_CSV_URL = 'https://docs.google.com/sheets/d/138AarGc1IgO2AQwxQ4b2I62zqd-6re63VWZAh55TTn4/gviz/tq?tqx=out:csv&gid=0'; // или другой GID для вашего листа "Материалы"
-const TRANSACTIONS_CSV_URL = 'https://docs.google.com/sheets/d/138AarGc1IgO2AQwxQ4b2I62zqd-6re63VWZAh55TTn4/gviz/tq?tqx=out:csv&gid=224436106'; // используйте свой GID
+const MATERIALS_CSV_URL = 'https://docs.google.com/spreadsheets/d/138AarGc1IgO2AQwxQ4b2I62zqd-6re63VWZAh55TTn4/gviz/tq?tqx=out:csv&gid=0'; // или другой GID для вашего листа "Материалы"
 
-
-// --- ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ДЛЯ ХРАНЕНИЯ ЗАГРУЖЕННЫХ ДАННЫХ ---
-// Эти переменные должны быть объявлены в глобальной области видимости,
-// чтобы к ним можно было получить доступ из разных функций.
-let globalMaterialsData = [];
-let globalTransactionsData = [];
+const TRANSACTIONS_CSV_URL = 'https://docs.google.com/spreadsheets/d/138AarGc1IgO2AQwxQ4b2I62zqd-6re63VWZAh55TTn4/gviz/tq?tqx=out:csv&gid=224436106'; // используйте свой GID
 
 
 // Функция для загрузки CSV-данных с помощью Papa Parse
@@ -75,19 +69,12 @@ function renderTable(data, containerId, headersMap, uniqueByKey = null) {
 
         if (processedData.length === 0 && data.length > 0) {
             console.warn(`Все строки были отфильтрованы при попытке получить уникальные значения по ключу "${uniqueByKey}". Проверьте данные или ключ.`);
-            const keyLabel = headersMap.find(h => h.key === uniqueByKey)?.label || uniqueByKey;
-            container.innerHTML = `<p>Нет уникальных данных по полю "${keyLabel}".</p>`;
+            container.innerHTML = `<p>Нет уникальных данных по полю "${headersMap.find(h => h.key === uniqueByKey)?.label || uniqueByKey}".</p>`;
             return;
         }
     }
 
     const table = document.createElement('table');
-    // Добавляем класс таблице, чтобы применились стили из style.css
-    // Например, для 'materials-table-container' класс станет 'materials-table'
-    const tableClass = containerId.replace('-table-container', ''); 
-    table.classList.add(tableClass);
-
-
     const thead = table.createTHead();
     const tbody = table.createTBody();
     const headerRow = thead.insertRow();
@@ -121,17 +108,51 @@ document.addEventListener('DOMContentLoaded', async () => {
         { key: 'Название', label: 'Название' },
         { key: 'Ед.изм.', label: 'Ед.изм.' },
         { key: 'Мин. остаток', label: 'Мин. остаток' },
+        //{ key: 'Кол-во на складе', label: 'Кол-во на складе' },
         { key: 'Остаток', label: 'Количество' },
         { key: 'Оповещение', label: 'Оповещение' }
     ];
-    // --- ИЗМЕНЕНИЕ: Сохраняем данные в глобальную переменную ---
-    globalMaterialsData = await loadCsvData(MATERIALS_CSV_URL); 
-    if (globalMaterialsData) {
-        renderTable(globalMaterialsData, 'materials-table-container', materialHeaders, 'Название');
+    const materialsData = await loadCsvData(MATERIALS_CSV_URL);
+    if (materialsData) {
+        renderTable(materialsData, 'materials-table-container', materialHeaders, 'Название');
     } else {
         document.getElementById('materials-table-container').innerHTML = '<p class="error-message">Не удалось загрузить данные о материалах. Проверьте URL или настройки публикации.</p>';
         document.getElementById('materials-loading').style.display = 'none';
     }
+
+    // --- Загружаем Остатки ---
+   // const balancesHeaders = [
+   //     { key: 'Материал', label: 'Материал' },
+     //   { key: 'Наличие (принято по акту ед.)', label: 'Наличие (принято по акту ед.)' },
+       // { key: 'Приход', label: 'Приход' },
+        //{ key: 'Расход', label: 'Расход' },
+        //{ key: 'Списание', label: 'Списание' },
+       // { key: 'Возврат', label: 'Возврат' },
+       // { key: 'Остаток', label: 'Остаток' } 
+  //  ];
+    //let balancesData = await loadCsvData(BALANCES_CSV_URL);
+
+  //  if (balancesData) {
+        // --- ФИЛЬТРАЦИЯ ДАННЫХ ДЛЯ ТАБЛИЦЫ "ОСТАТКИ": показываем только материалы с остатком > 0 ---
+     //   const quantityKey = 'Остаток'; // Имя столбца, по которому будем фильтровать.
+                                        // Убедитесь, что оно ТОЧНО совпадает с именем столбца в вашей таблице.
+
+     //   balancesData = balancesData.filter(row => {
+       //     const quantity = row[quantityKey];
+       //     return typeof quantity === 'number' && !isNaN(quantity) && quantity > 0;
+      //  });
+
+     //   if (balancesData.length === 0) {
+      //      document.getElementById('balances-table-container').innerHTML = '<p>В данный момент нет материалов на складе (остаток > 0).</p>';
+      //      document.getElementById('balances-loading').style.display = 'none';
+      //  } else {
+   //         renderTable(balancesData, 'balances-table-container', balancesHeaders);
+  //      }
+ //   } else {
+  //      document.getElementById('balances-table-container').innerHTML = '<p class="error-message">Не удалось загрузить данные об остатках. Проверьте URL или настройки публикации.</p>';
+  //      document.getElementById('balances-loading').style.display = 'none';
+ //   }
+
 
     // --- Загружаем транзакции ---
     const transactionHeaders = [
@@ -143,10 +164,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         { key: 'Кол-во', label: 'Кол-во' },
         { key: 'Комментарий', label: 'Комментарий' },
     ];
-    // --- ИЗМЕНЕНИЕ: Сохраняем данные в глобальную переменную ---
-    globalTransactionsData = await loadCsvData(TRANSACTIONS_CSV_URL); 
-    if (globalTransactionsData) {
-        renderTable(globalTransactionsData, 'transactions-table-container', transactionHeaders);
+    const transactionsData = await loadCsvData(TRANSACTIONS_CSV_URL);
+    if (transactionsData) {
+        renderTable(transactionsData, 'transactions-table-container', transactionHeaders);
     } else {
         document.getElementById('transactions-table-container').innerHTML = '<p class="error-message">Не удалось загрузить данные о транзакциях. Проверьте URL или настройки публикации.</p>';
         document.getElementById('transactions-loading').style.display = 'none';
@@ -154,81 +174,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 
-// -- ЭТУ ФУНКЦИЮ ВСТАВЬТЕ ГДЕ-НИБУДЬ ПОСЛЕ renderTable И ПЕРЕД document.addEventListener('DOMContentLoaded', ...) -
-// (например, сразу после закрывающей скобки функции renderTable)
-function exportToCsv(filename, data, headersMap) {
-    if (!data || data.length === 0) {
-        alert(`Нет данных для экспорта в ${filename}.`);
-        return;
-    }
-
-    const headers = headersMap.map(h => h.label);
-
-    const csvDataForUnparse = [];
-    csvDataForUnparse.push(headers); // Добавляем заголовки как первую строку CSV
-
-    data.forEach(row => {
-        const newRow = [];
-        headersMap.forEach(h => {
-            const value = row[h.key] !== null && row[h.key] !== undefined ? row[h.key] : '';
-            newRow.push(value);
-        });
-        csvDataForUnparse.push(newRow);
-    });
-
-    const csvString = Papa.unparse(csvDataForUnparse, {
-        quotes: true,  // Добавлять кавычки вокруг всех полей (хорошо для Excel)
-        delimiter: ',', // Используем запятую как разделитель
-        newline: '\r\n' // Стандартная новая строка для CSV
-    });
-
-    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
-
-    const link = document.createElement('a');
-    if (link.download !== undefined) { 
-        const url = URL.createObjectURL(blob);
-        link.setAttribute('href', url);
-        link.setAttribute('download', filename);
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    } else {
-        window.open('data:text/csv;charset=utf-8,' + encodeURIComponent(csvString));
-    }
-}
-
-
-
-// - ЭТОТ БЛОК ВСТАВЬТЕ ВНИЗ ВАШЕГО script.js, СРАЗУ ПОСЛЕ ОБРАБОТЧИКА printPdfButton -
-document.getElementById('exportCsvButton').addEventListener('click', () => {
-    // Заголовки для таблицы "Материалы"
-    const materialHeadersForExport = [
-        { key: 'ID', label: 'ID' },
-        { key: 'Название', label: 'Название' },
-        { key: 'Ед.изм.', label: 'Ед.изм.' },
-        { key: 'Мин. остаток', label: 'Мин. остаток' },
-        { key: 'Остаток', label: 'Количество' },
-        { key: 'Оповещение', label: 'Оповещение' }
-    ];
-    exportToCsv('материалы.csv', globalMaterialsData, materialHeadersForExport);
-
-    // Заголовки для таблицы "Транзакции"
-    const transactionHeadersForExport = [
-        { key: 'Дата', label: 'Дата' },
-        { key: 'Сотрудник', label: 'Сотрудник' },
-        { key: 'Поставщик', label: 'Поставщик' },
-        { key: 'Материал', label: 'Материал' },
-        { key: 'Тип', label: 'Тип' },
-        { key: 'Кол-во', label: 'Кол-во' },
-        { key: 'Комментарий', label: 'Комментарий' },
-    ];
-    exportToCsv('транзакции.csv', globalTransactionsData, transactionHeadersForExport);
-});
-
-
 // --- Функция для сохранения страницы в PDF ---
-// --- ОБНОВИТЕ ЭТОТ БЛОК, ДОБАВИВ СКРЫТИЕ КНОПКИ CSV ---
 document.getElementById('printPdfButton').addEventListener('click', async () => {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('p', 'mm', 'a4'); // 'p' - portrait, 'mm' - миллиметры, 'a4' - формат листа
@@ -236,8 +182,7 @@ document.getElementById('printPdfButton').addEventListener('click', async () => 
     const container = document.querySelector('.container'); // Весь контент для печати
 
     // Скрываем элементы, которые не должны попасть в PDF
-    document.getElementById('printPdfButton').classList.add('pdf-hidden'); // Скрываем саму кнопку PDF
-    document.getElementById('exportCsvButton').classList.add('pdf-hidden'); // <-- ДОБАВЬТЕ ЭТУ СТРОКУ: скрываем кнопку CSV
+    document.getElementById('printPdfButton').classList.add('pdf-hidden'); // Скрываем саму кнопку
     document.querySelector('h1').classList.add('pdf-hidden'); // Скрываем общий заголовок
 
     html2canvas(container, {
@@ -265,16 +210,14 @@ document.getElementById('printPdfButton').addEventListener('click', async () => 
 
         doc.save('Отчет_Склад.pdf');
 
-        // Возвращаем видимость скрытым элементам после сохранения PDF
+        // Возвращаем видимость скрытым элементам
         document.getElementById('printPdfButton').classList.remove('pdf-hidden');
-        document.getElementById('exportCsvButton').classList.remove('pdf-hidden'); // <-- ДОБАВЬТЕ ЭТУ СТРОКУ: возвращаем видимость кнопке CSV
         document.querySelector('h1').classList.remove('pdf-hidden');
     }).catch(error => {
         console.error('Ошибка при генерации PDF:', error);
         alert('Не удалось сгенерировать PDF. Проверьте консоль для подробностей.');
-        // В случае ошибки также возвращаем видимость элементам
+        // В случае ошибки возвращаем видимость элементам
         document.getElementById('printPdfButton').classList.remove('pdf-hidden');
-        document.getElementById('exportCsvButton').classList.remove('pdf-hidden'); // <-- ДОБАВЬТЕ ЭТУ СТРОКУ: возвращаем видимость кнопке CSV
         document.querySelector('h1').classList.remove('pdf-hidden');
     });
 });
