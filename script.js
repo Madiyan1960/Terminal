@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         { key: 'Ед.изм.', label: 'Ед.изм.' },
         { key: 'Мин. остаток', label: 'Мин. остаток' },
         //{ key: 'Кол-во на складе', label: 'Кол-во на складе' },
-        { key: 'Остаток', label: 'Остаток' },
+        { key: 'Остаток', label: 'Количество' },
         { key: 'Оповещение', label: 'Оповещение' }
     ];
     const materialsData = await loadCsvData(MATERIALS_CSV_URL);
