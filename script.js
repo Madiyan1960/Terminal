@@ -1,10 +1,12 @@
 // script.js
 
 // Вставьте сюда ссылки на опубликованные CSV-файлы из вашей Google Таблицы
-const MATERIALS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSfvwx5ehWEL28ttSX5pWRsOV42VLBHrIWIs6pHB7F4nRp3wRb0f04Jq-pfrPtN0OWaBiEKCGzNCkN3/pub?output=csv'; // Например: https://docs.google.com/spreadsheets/d/e/2PACX-1vR.../pub?gid=...&single=true&output=csv
-const TRANSACTIONS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSfvwx5ehWEL28ttSX5pWRsOV42VLBHrIWIs6pHB7F4nRp3wRb0f04Jq-pfrPtN0OWaBiEKCGzNCkN3/pub?gid=224436106&single=true&output=csv'; // Например: https://docs.google.com/spreadsheets/d/e/2PACX-1vR.../pub?gid=...&single=true&output=csv
+// Важно: для первого листа (Материалы) часто не указывают gid, или он равен gid=0
+const MATERIALS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSfvwx5ehWEL28ttSX5pWRsOV42VLBHrIWIs6pHB7F4nRp3wRb0f04Jq-pfrPtN0OWaBiEKCGzNCkN3/pub?gid=0&single=true&output=csv'; 
+const TRANSACTIONS_CSV_URL = 'https://docs.google.com/sheets/d/e/2PACX-1vSfvwx5ehWEL28ttSX5pWRsOV42VLBHrIWIs6pHB7F4nRp3wRb0f04Jq-pfrPtN0OWaBiEKCGzNCkN3/pub?gid=224436106&single=true&output=csv'; 
 
-// Функция для загрузки CSV и преобразования в массив объектов
+
+// --- НОВАЯ ФУНКЦИЯ loadCsvData, использующая Papa Parse ---
 async function loadCsvData(url) {
     try {
         const response = await fetch(url);
@@ -12,16 +14,36 @@ async function loadCsvData(url) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const csvText = await response.text();
-        return parseCsv(csvText);
+
+        return new Promise((resolve, reject) => {
+            Papa.parse(csvText, {
+                header: true, // Первая строка CSV - это заголовки
+                dynamicTyping: true, // Автоматически преобразует числа и булевы значения
+                skipEmptyLines: true, // Пропускает пустые строки
+                complete: function(results) {
+                    if (results.errors.length > 0) {
+                        console.error('Ошибки парсинга CSV:', results.errors);
+                        reject(new Error('Ошибка парсинга CSV. Проверьте консоль для деталей.'));
+                    } else {
+                        resolve(results.data);
+                    }
+                },
+                error: function(err) {
+                    console.error('Ошибка Papa Parse:', err);
+                    reject(err);
+                }
+            });
+        });
     } catch (error) {
         console.error('Ошибка загрузки CSV:', error);
-        return null; // Возвращаем null в случае ошибки
+        return null;
     }
 }
 
-// Простая функция для парсинга CSV
+// --- УДАЛИТЕ ИЛИ ЗАКОММЕНТИРУЙТЕ ЭТУ СТАРУЮ ФУНКЦИЮ parseCsv() ---
+/*
 function parseCsv(csvString) {
-    const lines = csvString.split('\n').filter(line => line.trim() !== ''); // Удаляем пустые строки
+    const lines = csvString.split('\n').filter(line => line.trim() !== '');
     if (lines.length === 0) return [];
 
     const headers = lines[0].split(',').map(header => header.trim());
@@ -29,10 +51,9 @@ function parseCsv(csvString) {
 
     for (let i = 1; i < lines.length; i++) {
         const currentLine = lines[i].split(',');
-        if (currentLine.length === headers.length) { // Проверяем, что количество столбцов совпадает
+        if (currentLine.length === headers.length) {
             const rowData = {};
             for (let j = 0; j < headers.length; j++) {
-                // Удаляем кавычки, если есть, и лишние пробелы
                 rowData[headers[j]] = currentLine[j] ? currentLine[j].trim().replace(/^"|"$/g, '') : '';
             }
             data.push(rowData);
@@ -42,14 +63,17 @@ function parseCsv(csvString) {
     }
     return data;
 }
+*/
+// --- Конец старой функции ---
 
-// Функция для отображения данных в таблице
+
+// Функция для отображения данных в таблице (остается без изменений)
 function renderTable(data, containerId, headersMap) {
     const container = document.getElementById(containerId);
-    const loadingMessage = container.previousElementSibling; // Элемент <p class="loading">
+    const loadingMessage = container.previousElementSibling;
     
     if (loadingMessage) {
-        loadingMessage.style.display = 'none'; // Скрываем сообщение о загрузке
+        loadingMessage.style.display = 'none';
     }
 
     if (!data || data.length === 0) {
@@ -62,7 +86,6 @@ function renderTable(data, containerId, headersMap) {
     const tbody = table.createTBody();
     const headerRow = thead.insertRow();
 
-    // Создаем заголовки таблицы на основе headersMap (если предоставлен) или из первых ключей данных
     const displayHeaders = headersMap || Object.keys(data[0]).map(key => ({ key, label: key }));
 
     displayHeaders.forEach(h => {
@@ -75,29 +98,34 @@ function renderTable(data, containerId, headersMap) {
         const row = tbody.insertRow();
         displayHeaders.forEach(h => {
             const cell = row.insertCell();
-            cell.textContent = rowData[h.key] || ''; // Отображаем данные по ключу
+            // Papa Parse может возвращать null/undefined для пустых ячеек, обрабатываем это
+            cell.textContent = rowData[h.key] !== null && rowData[h.key] !== undefined ? rowData[h.key] : '';
         });
     });
 
-    container.innerHTML = ''; // Очищаем контейнер перед добавлением новой таблицы
+    container.innerHTML = '';
     container.appendChild(table);
 }
 
 // Загрузка и отображение данных при загрузке страницы
 document.addEventListener('DOMContentLoaded', async () => {
-    // Загружаем материалы
+    // Внимание: 'key' в materialHeaders и transactionHeaders ДОЛЖЕН ТОЧНО СОВПАДАТЬ
+    // с заголовками столбцов в вашем CSV-файле, включая пробелы и регистр.
+    // Скачайте CSV-файл и проверьте первую строку, чтобы убедиться!
+    
+    // --- Загружаем материалы ---
+    // Проверьте названия столбцов в вашем CSV для листа "Материалы"
+    const materialHeaders = [
+        { key: 'ID', label: 'ID' },
+        { key: 'Название', label: 'Название' },
+        { key: 'Ед.изм.', label: 'Ед.изм.' }, // Если у вас такой столбец
+        { key: 'Мин. остаток', label: 'Мин. остаток' },
+        { key: 'Наличие (принято по акту ед.)', label: 'Наличие (принято по акту ед.)' }, // Это очень длинное название, убедитесь что оно ТОЧНО такое в CSV
+        { key: 'Остаток', label: 'Остаток' },
+        { key: 'Оповещение', label: 'Оповещение' }
+    ];
     const materialsData = await loadCsvData(MATERIALS_CSV_URL);
     if (materialsData) {
-        // Определяем, какие столбцы отображать и в каком порядке, и их названия
-        const materialHeaders = [
-            { key: 'ID', label: 'ID' },
-            { key: 'Название', label: 'Название' },
-            //*{ key: 'Ед.изм.', label: 'Ед.изм.' },//*
-            { key: 'Мин. остаток', label: 'Мин. остаток' }, // Убедитесь, что название в CSV совпадает
-            { key: 'Наличие (принято по акту ед.)', label: 'Наличие (принято по акту ед.)' },
-            { key: 'Остаток', label: 'Остаток' }, // Возможно, у вас 'Текущий_Остаток'
-            { key: 'Оповещение', label: 'Оповещение' }
-        ];
         renderTable(materialsData, 'materials-table-container', materialHeaders);
     } else {
         document.getElementById('materials-table-container').innerHTML = '<p class="error-message">Не удалось загрузить данные о материалах. Проверьте URL или настройки публикации.</p>';
@@ -105,20 +133,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
 
-    // Загружаем транзакции
+    // --- Загружаем транзакции ---
+    // Проверьте названия столбцов в вашем CSV для листа "Транзакции"
+    const transactionHeaders = [
+        { key: 'ID Транзакции', label: 'ID' }, // Проверьте точное название в CSV
+        { key: 'Дата', label: 'Дата' },
+        { key: 'Время', label: 'Время' },
+        { key: 'Название Материала', label: 'Материал' }, // Проверьте точное название в CSV
+        { key: 'Тип Операции', label: 'Тип' },
+        { key: 'Количество', label: 'Кол-во' },
+        { key: 'Сотрудник (ID/ФИО)', label: 'Сотрудник' }, // Проверьте точное название в CSV
+        { key: 'Поставщик (ID/Название)', label: 'Поставщик' }, // Проверьте точное название в CSV
+        { key: 'Примечание', label: 'Примечание' }
+    ];
     const transactionsData = await loadCsvData(TRANSACTIONS_CSV_URL);
     if (transactionsData) {
-        const transactionHeaders = [
-            { key: 'ID Транзакции', label: 'ID' },
-            { key: 'Дата', label: 'Дата' },
-            { key: 'Время', label: 'Время' },
-            { key: 'Название Материала', label: 'Материал' }, // Или 'ID Материала' если вы так решили
-            { key: 'Тип Операции', label: 'Тип' },
-            { key: 'Количество', label: 'Кол-во' },
-            { key: 'Сотрудник (ID/ФИО)', label: 'Сотрудник' }, // Или фактическое название из CSV
-            { key: 'Поставщик (ID/Название)', label: 'Поставщик' }, // Или фактическое название из CSV
-            { key: 'Примечание', label: 'Примечание' }
-        ];
         renderTable(transactionsData, 'transactions-table-container', transactionHeaders);
     } else {
         document.getElementById('transactions-table-container').innerHTML = '<p class="error-message">Не удалось загрузить данные о транзакциях. Проверьте URL или настройки публикации.</p>';
@@ -137,10 +166,6 @@ document.getElementById('printPdfButton').addEventListener('click', async () => 
     // Скрываем элементы, которые не должны попасть в PDF
     document.getElementById('printPdfButton').classList.add('pdf-hidden'); // Скрываем саму кнопку
     document.querySelector('h1').classList.add('pdf-hidden'); // Скрываем общий заголовок
-
-    // Для лучшего отображения таблиц в PDF
-    // Можно обернуть таблицы в div и передавать их по отдельности для сохранения
-    // Или увеличить DPI для лучшего качества изображения
 
     html2canvas(container, {
         scale: 2, // Увеличиваем масштаб для лучшего качества PDF
