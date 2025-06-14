@@ -6,7 +6,6 @@
 const TRANSACTIONS_CSV_URL = 'https://docs.google.com/spreadsheets/d/138AarGc1IgO2AQwxQ4b2I62zqd-6re63VWZAh55TTn4/gviz/tq?tqx=out:csv&gid=224436106'; // используйте свой GID
 
 // НОВЫЙ URL ДЛЯ ТАБЛИЦЫ ОСТАТКОВ
-
 // --- НОВАЯ ФУНКЦИЯ loadCsvData, использующая Papa Parse ---
 // ... (эта функция остается без изменений) ...
 async function loadCsvData(url) {
