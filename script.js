@@ -155,7 +155,7 @@ function exportToCsv(filename, data, headersMap) {
     // Используем Papa.unparse() для преобразования массива массивов в CSV-строку.
     const csvString = Papa.unparse(csvDataForUnparse, {
         quotes: true,  // Добавлять кавычки вокруг всех полей (хорошо для Excel, если есть запятые внутри текста)
-        delimiter: ',', // Используем запятую как разделитель
+        delimiter: ';', // Используем запятую как разделитель
         newline: '\r\n' // Стандартная новая строка для CSV (Windows-совместимая)
     });
 
