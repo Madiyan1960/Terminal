@@ -65,12 +65,17 @@ table {
 
 /* СТИЛИ ДЛЯ ЗАГОЛОВКОВ ТАБЛИЦ И ЯЧЕЕК ДАННЫХ */
 th, td {
-    border: 1px solid #ddd; /* <-- ГРАНИЦЫ НАСТРАИВАЮТСЯ ЗДЕСЬ */
+    border: 1px solid #ddd; /* <-- ВОТ ГДЕ ОПРЕДЕЛЯЮТСЯ ГРАНИЦЫ */
     padding: 6px 7px;
     text-align: left;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
+    white-space: nowrap; /* Важно: этот стиль не дает тексту переноситься на новую строку */
+    /* Если текст слишком длинный и "выталкивает" ячейку,
+       и вы хотите, чтобы он разбивался в любом месте, добавьте: */
+    /* word-break: break-all; */ 
+    /* Или, если вы хотите, чтобы текст переносился на новую строку, а не обрезался: */
+    /* white-space: normal; */
 }
 
 /* СТИЛИ ДЛЯ ЗАГОЛОВКОВ СТОЛБЦОВ ТАБЛИЦЫ */
@@ -127,6 +132,17 @@ hr {
 .materials-table th:nth-child(5) { width: 20%; }
 .materials-table th:nth-child(6) { width: 15%; }
 .materials-table th:nth-child(7) { width: 15%; }
+
+/* Таблица "Остатки" (class="balances-table") */
+/* ДОБАВЛЕННЫЙ БЛОК ДЛЯ ТАБЛИЦЫ ОСТАТКОВ */
+.balances-table th:nth-child(1) { width: 30%; } /* Материал */
+.balances-table th:nth-child(2) { width: 15%; } /* Наличие (принято по акту ед.) */
+.balances-table th:nth-child(3) { width: 10%; } /* Приход */
+.balances-table th:nth-child(4) { width: 10%; } /* Расход */
+.balances-table th:nth-child(5) { width: 10%; } /* Списание */
+.balances-table th:nth-child(6) { width: 10%; } /* Возврат */
+.balances-table th:nth-child(7) { width: 15%; } /* Остаток */
+
 
 /* Таблица "Транзакции" (class="transactions-table") */
 .transactions-table th:nth-child(1) { width: 10%; }
