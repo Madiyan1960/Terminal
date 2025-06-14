@@ -1,128 +1,180 @@
+/* ОБЩИЕ СТИЛИ ДЛЯ ВСЕЙ СТРАНИЦЫ */
 body {
-    font-family: Arial, sans-serif;
-    margin: 20px;
-    background-color: #f4f7f6;
-    color: #333;
-    line-height: 1.6;
+    font-family: Arial, sans-serif; /* Основной шрифт для всего текста */
+    margin: 20px; /* Внешний отступ вокруг всего тела страницы */
+    background-color: #f4f7f6; /* Светло-серый фон страницы */
+    color: #333; /* Основной цвет текста (темно-серый) */
+    line-height: 1.6; /* Межстрочный интервал для лучшей читаемости */
 }
 
+/* СТИЛИ ДЛЯ ОСНОВНОГО КОНТЕЙНЕРА СОДЕРЖИМОГО */
 .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    background-color: #fff;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    max-width: 1200px; /* Максимальная ширина контейнера */
+    margin: 0 auto; /* Центрирование контейнера по горизонтали */
+    background-color: #fff; /* Белый фон внутри контейнера */
+    padding: 30px; /* Внутренний отступ внутри контейнера */
+    border-radius: 8px; /* Скругление углов контейнера */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Мягкая тень для визуального отделения */
 }
 
+/* СТИЛИ ДЛЯ ЗАГОЛОВКОВ */
 h1, h2 {
-    color: #2c3e50;
-    text-align: center;
-    margin-bottom: 25px;
+    color: #2c3e50; /* Темно-синий цвет для заголовков */
+    text-align: center; /* Выравнивание заголовков по центру */
+    margin-bottom: 25px; /* Отступ снизу от заголовков */
 }
 
+/* СТИЛИ ДЛЯ БЛОКА КНОПОК УПРАВЛЕНИЯ */
 .controls {
-    text-align: center;
-    margin-bottom: 30px;
+    text-align: center; /* Выравнивание содержимого (кнопок) по центру */
+    margin-bottom: 30px; /* Отступ снизу от блока кнопок */
 }
 
+/* СТИЛИ ДЛЯ КНОПОК */
 button {
-    background-color: #007bff;
-    color: white;
-    padding: 12px 25px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.3s ease;
+    background-color: #007bff; /* Синий фон кнопки */
+    color: white; /* Белый текст кнопки */
+    padding: 12px 25px; /* Внутренние отступы кнопки */
+    border: none; /* Убираем стандартную границу */
+    border-radius: 5px; /* Скругление углов кнопки */
+    cursor: pointer; /* Изменение курсора на "указатель" при наведении */
+    font-size: 16px; /* Размер шрифта кнопки */
+    transition: background-color 0.3s ease; /* Плавный переход цвета при наведении */
 }
 
 button:hover {
-    background-color: #0056b3;
+    background-color: #0056b3; /* Более темный синий при наведении */
 }
 
+/* СТИЛИ ДЛЯ РАЗДЕЛОВ ДАННЫХ (каждая таблица в своем разделе) */
 .data-section {
-    margin-bottom: 40px;
+    margin-bottom: 40px; /* Отступ снизу от каждого раздела данных */
 }
 
+/* ОБЩИЕ СТИЛИ ДЛЯ ВСЕХ ТАБЛИЦ */
 table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-    background-color: #fff;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    width: 100%; /* Таблица занимает всю доступную ширину родительского элемента */
+    border-collapse: collapse; /* Схлопывает границы ячеек, убирая двойные линии */
+    margin-top: 20px; /* Отступ сверху от таблицы */
+    background-color: #fff; /* Белый фон для самой таблицы */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05); /* Легкая тень для таблицы */
+    
+    /* ВАЖНО для контроля ширины столбцов: */
+    table-layout: fixed; /* Принудительно фиксированная ширина столбцов.
+                            Браузер будет стараться строго придерживаться заданной ширины,
+                            даже если содержимое ячейки превышает ее. */
 }
 
+/* СТИЛИ ДЛЯ ЗАГОЛОВКОВ ТАБЛИЦ И ЯЧЕЕК ДАННЫХ */
 th, td {
-    border: 1px solid #ddd;
-    padding: 6px 7px;
-    text-align: left;
+    border: 1px solid #ddd; /* Границы ячеек (светло-серые) */
+    padding: 6px 7px; /* Внутренние отступы в ячейках: 6px сверху/снизу, 7px слева/справа */
+    text-align: left; /* Выравнивание текста по левому краю в ячейках */
+    
+    /* Для того, чтобы содержимое не "выползало" из узких ячеек, а переносилось или обрезалось: */
+    overflow: hidden; /* Скрывает содержимое, которое не помещается */
+    text-overflow: ellipsis; /* Добавляет "..." если текст обрезается (работает не во всех случаях) */
+    white-space: nowrap; /* По умолчанию текст не переносится, если нет явного <br> */
 }
 
+/* СТИЛИ ДЛЯ ЗАГОЛОВКОВ СТОЛБЦОВ ТАБЛИЦЫ */
 th {
-    background-color: #f2f2f2;
-    font-weight: bold;
-    color: #555;
+    background-color: #f2f2f2; /* Светло-серый фон для заголовков */
+    font-weight: bold; /* Жирный шрифт для заголовков */
+    color: #555; /* Темно-серый цвет текста заголовков */
 }
 
-tr:nth-child(even) {
-    background-color: #f9f9f9;
+/* СТИЛИ ДЛЯ ЧЕРЕДУЮЩИХСЯ СТРОК ТАБЛИЦЫ (эффект "зебры") */
+tr:nth-child(even) { /* Применяется к каждой четной строке */
+    background-color: #f9f9f9; /* Очень светло-серый фон */
 }
 
+/* СТИЛИ ПРИ НАВЕДЕНИИ НА СТРОКУ ТАБЛИЦЫ */
 tr:hover {
-    background-color: #f1f1f1;
+    background-color: #f1f1f1; /* Чуть более темный серый фон при наведении */
 }
 
+/* СТИЛИ ДЛЯ СООБЩЕНИЙ О ЗАГРУЗКЕ */
 .loading {
-    text-align: center;
-    font-style: italic;
-    color: #777;
-    margin-top: 15px;
+    text-align: center; /* Центрирование текста */
+    font-style: italic; /* Курсивный шрифт */
+    color: #777; /* Серый цвет текста */
+    margin-top: 15px; /* Отступ сверху */
 }
 
+/* СТИЛИ ДЛЯ ГОРИЗОНТАЛЬНОЙ ЛИНИИ (разделителя) */
 hr {
-    border: 0;
-    height: 1px;
-    background: #eee;
-    margin: 40px 0;
+    border: 0; /* Убираем стандартную границу */
+    height: 1px; /* Задаем высоту линии */
+    background: #eee; /* Светло-серый цвет линии */
+    margin: 40px 0; /* Отступы сверху и снизу от линии */
 }
 
-/* Стили для PDF */
+/* СТИЛИ ДЛЯ PDF (скрытие элементов, которые не должны быть в PDF) */
 .pdf-hidden {
-    display: none !important;
+    display: none !important; /* Скрывает элемент при генерации PDF (и на экране, если класс добавлен) */
 }
 
+/* Стили для элементов, которые должны быть видны только в PDF (сейчас не используются, но могут пригодиться) */
 .pdf-only {
-    display: none;
+    display: none;
 }
+
+/* МЕДИА-ЗАПРОСЫ ДЛЯ ПЕЧАТИ (Когда документ печатается или сохраняется как PDF) */
 @media print {
-    .container {
-        box-shadow: none;
-        padding: 0;
-    }
-    .controls {
-        display: none; /* Скрываем кнопку "Сохранить как PDF" в самом PDF */
-    }
-    h1 {
-        display: none; /* Скрываем общий заголовок для PDF */
-    }
-    .data-section h2 {
-        text-align: left;
-        margin-top: 20px;
-        margin-bottom: 10px;
-    }
-    table {
-        font-size: 10px; /* Уменьшаем шрифт для печати, чтобы больше помещалось */
-        page-break-inside: auto;
-    }
-    tr {
-        page-break-inside: avoid;
-        page-break-after: auto;
-    }
-    thead {
-        display: table-header-group;
-    }
-    .loading {
-        display: none;
-    }
+    .container {
+        box-shadow: none; /* Убираем тень контейнера при печати */
+        padding: 0; /* Убираем отступы контейнера при печати */
+    }
+    .controls {
+        display: none; /* Скрываем кнопки управления (например, "Сохранить как PDF") */
+    }
+    h1 {
+        display: none; /* Скрываем основной заголовок страницы */
+    }
+    .data-section h2 {
+        text-align: left; /* Заголовки разделов выравниваем по левому краю при печати */
+        margin-top: 20px;
+        margin-bottom: 10px;
+    }
+    table {
+        font-size: 10px; /* Уменьшаем размер шрифта таблицы для лучшего размещения на листе */
+        page-break-inside: auto; /* Разрешает разрыв таблицы между страницами */
+    }
+    tr {
+        page-break-inside: avoid; /* Старается не разрывать строки между страницами */
+        page-break-after: auto; /* Позволяет разрыв после строки, если необходимо */
+    }
+    thead {
+        display: table-header-group; /* Повторяет заголовки таблицы на каждой новой странице */
+    }
+    .loading {
+        display: none; /* Скрываем сообщения о загрузке при печати */
+    }
+
+    /* ДОПОЛНИТЕЛЬНО: СТИЛИ ДЛЯ НАСТРОЙКИ ШИРИНЫ КОЛОНОК ДЛЯ КАЖДОЙ ТАБЛИЦЫ */
+    /* ВАЖНО: Чтобы это работало, вашим таблицам в HTML нужно дать уникальные классы,
+       например, <table class="materials-table">, <table class="balances-table"> и т.д.
+       Иначе эти стили будут применяться ко ВСЕМ таблицам.
+    */
+
+    /* Пример для таблицы "Материалы" (предполагается class="materials-table") */
+    /* .materials-table th:nth-child(1) { width: 5%; }  // ID */
+    /* .materials-table th:nth-child(2) { width: 30%; } // Название */
+    /* .materials-table th:nth-child(3) { width: 10%; } // Ед.изм. */
+    /* .materials-table th:nth-child(4) { width: 15%; } // Мин. остаток */
+    /* .materials-table th:nth-child(5) { width: 20%; } // Наличие */
+    /* .materials-table th:nth-child(6) { width: 10%; } // Остаток */
+    /* .materials-table th:nth-child(7) { width: 10%; } // Оповещение */
+
+    /* Пример для таблицы "Остатки" (предполагается class="balances-table") */
+    /* .balances-table th:nth-child(1) { width: 40%; } // Материал */
+    /* .balances-table th:nth-child(2) { width: 15%; } // Наличие */
+    /* .balances-table th:nth-child(3) { width: 10%; } // Приход */
+    /* .balances-table th:nth-child(4) { width: 10%; } // Расход */
+    /* .balances-table th:nth-child(5) { width: 10%; } // Списание */
+    /* .balances-table th:nth-child(6) { width: 10%; } // Возврат */
+    /* .balances-table th:nth-child(7) { width: 5%; }  // Остаток */
+
+    /* ... и так далее для других таблиц, если они есть ... */
 }
