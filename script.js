@@ -1,12 +1,14 @@
 // script.js
 
 // Вставьте сюда ссылки на опубликованные CSV-файлы из вашей Google Таблицы
-// Важно: для первого листа (Материалы) часто не указывают gid, или он равен gid=0
 const MATERIALS_CSV_URL = 'https://docs.google.com/spreadsheets/d/138AarGc1IgO2AQwxQ4b2I62zqd-6re63VWZAh55TTn4/gviz/tq?tqx=out:csv&gid=0'; // или другой GID для вашего листа "Материалы"
 const TRANSACTIONS_CSV_URL = 'https://docs.google.com/spreadsheets/d/138AarGc1IgO2AQwxQ4b2I62zqd-6re63VWZAh55TTn4/gviz/tq?tqx=out:csv&gid=224436106'; // используйте свой GID
 
+// НОВЫЙ URL ДЛЯ ТАБЛИЦЫ ОСТАТКОВ
+const BALANCES_CSV_URL = 'https://docs.google.com/sheets/d/138AarGc1IgO2AQwxQ4b2I62zqd-6re63VWZAh55TTn4/gviz/tq?tqx=out:csv&gid=1133040566'; // ЗАМЕНИТЕ НА СВОЙ РЕАЛЬНЫЙ URL!
 
 // --- НОВАЯ ФУНКЦИЯ loadCsvData, использующая Papa Parse ---
+// ... (эта функция остается без изменений) ...
 async function loadCsvData(url) {
     try {
         const response = await fetch(url);
@@ -40,35 +42,9 @@ async function loadCsvData(url) {
     }
 }
 
-// --- УДАЛИТЕ ИЛИ ЗАКОММЕНТИРУЙТЕ ЭТУ СТАРУЮ ФУНКЦИЮ parseCsv() ---
-/*
-function parseCsv(csvString) {
-    const lines = csvString.split('\n').filter(line => line.trim() !== '');
-    if (lines.length === 0) return [];
-
-    const headers = lines[0].split(',').map(header => header.trim());
-    const data = [];
-
-    for (let i = 1; i < lines.length; i++) {
-        const currentLine = lines[i].split(',');
-        if (currentLine.length === headers.length) {
-            const rowData = {};
-            for (let j = 0; j < headers.length; j++) {
-                rowData[headers[j]] = currentLine[j] ? currentLine[j].trim().replace(/^"|"$/g, '') : '';
-            }
-            data.push(rowData);
-        } else {
-            console.warn(`Пропущена строка из-за несоответствия количества столбцов: ${lines[i]}`);
-        }
-    }
-    return data;
-}
-*/
-// --- Конец старой функции ---
-
+// ... (старая функция parseCsv - должна быть закомментирована или удалена) ...
 
 // Функция для отображения данных в таблице
-// ДОБАВЛЕН НОВЫЙ ПАРАМЕТР: uniqueByKey для фильтрации по уникальным значениям
 function renderTable(data, containerId, headersMap, uniqueByKey = null) {
     const container = document.getElementById(containerId);
     const loadingMessage = container.previousElementSibling;
@@ -84,28 +60,23 @@ function renderTable(data, containerId, headersMap, uniqueByKey = null) {
 
     let processedData = data;
 
-    // --- НОВАЯ ЛОГИКА: Фильтрация для получения уникальных записей ---
     if (uniqueByKey && data.length > 0) {
-        const seenKeys = new Set(); // Используем Set для отслеживания уже встреченных значений
+        const seenKeys = new Set();
         processedData = data.filter(row => {
             const keyValue = row[uniqueByKey];
-            // Пропускаем строки, если ключ пуст, неопределен, или его значение уже встречалось
             if (keyValue === null || keyValue === undefined || seenKeys.has(keyValue)) {
                 return false; 
             }
-            seenKeys.add(keyValue); // Добавляем текущее значение в Set
-            return true; // Включаем строку в отфильтрованные данные
+            seenKeys.add(keyValue);
+            return true;
         });
 
         if (processedData.length === 0 && data.length > 0) {
-            // Если все строки были отфильтрованы (например, все дубликаты или пустые ключи)
             console.warn(`Все строки были отфильтрованы при попытке получить уникальные значения по ключу "${uniqueByKey}". Проверьте данные или ключ.`);
             container.innerHTML = `<p>Нет уникальных данных по полю "${headersMap.find(h => h.key === uniqueByKey)?.label || uniqueByKey}".</p>`;
             return;
         }
     }
-    // --- КОНЕЦ НОВОЙ ЛОГИКИ ---
-
 
     const table = document.createElement('table');
     const thead = table.createTHead();
@@ -120,7 +91,7 @@ function renderTable(data, containerId, headersMap, uniqueByKey = null) {
         headerRow.appendChild(th);
     });
 
-    processedData.forEach(rowData => { // Теперь используем processedData (отфильтрованные)
+    processedData.forEach(rowData => {
         const row = tbody.insertRow();
         displayHeaders.forEach(h => {
             const cell = row.insertCell();
@@ -134,31 +105,48 @@ function renderTable(data, containerId, headersMap, uniqueByKey = null) {
 
 // Загрузка и отображение данных при загрузке страницы
 document.addEventListener('DOMContentLoaded', async () => {
-    // Внимание: 'key' в materialHeaders и transactionHeaders ДОЛЖЕН ТОЧНО СОВПАДАТЬ
-    // с заголовками столбцов в вашем CSV-файле, включая пробелы и регистр.
-    // Скачайте CSV-файл и проверьте первую строку, чтобы убедиться!
-    
     // --- Загружаем материалы ---
     const materialHeaders = [
         { key: 'ID', label: 'ID' },
         { key: 'Название', label: 'Название' },
+        { key: 'Ед.изм.', label: 'Ед.изм.' },
         { key: 'Мин. остаток', label: 'Мин. остаток' },
-        { key: 'Наличие (принято по акту ед.)', label: 'Наличие (принято по акту ед.)' }, // Это очень длинное название, убедитесь что оно ТОЧНО такое в CSV
+        { key: 'Наличие (принято по акту ед.)', label: 'Наличие (принято по акту ед.)' },
         { key: 'Остаток', label: 'Остаток' },
         { key: 'Оповещение', label: 'Оповещение' }
     ];
     const materialsData = await loadCsvData(MATERIALS_CSV_URL);
     if (materialsData) {
-        // --- ИЗМЕНЕНИЕ ВЫЗОВА: Добавляем 'Название' как ключ для уникальности ---
         renderTable(materialsData, 'materials-table-container', materialHeaders, 'Название');
     } else {
         document.getElementById('materials-table-container').innerHTML = '<p class="error-message">Не удалось загрузить данные о материалах. Проверьте URL или настройки публикации.</p>';
         document.getElementById('materials-loading').style.display = 'none';
     }
 
+    // --- НОВАЯ ЛОГИКА: Загружаем Остатки ---
+    const balancesHeaders = [
+        // ЗАМЕНИТЕ ЭТИ ЗАГОЛОВКИ НА РЕАЛЬНЫЕ ИЗ ВАШЕГО CSV-ФАЙЛА "Остатки"
+        { key: 'Материал', label: 'Материал' },
+        { key: 'Наличие (принято по акту ед.)', label: 'Наличие (принято по акту ед.)' },
+        { key: 'Приход', label: 'Приход' },
+        { key: 'Расход', label: 'Расход' },
+        { key: 'Списание', label: 'Списание' },
+        { key: 'Возврат', label: 'Возврат' },
+        { key: 'Остаток', label: 'Остаток' }
+        // Добавьте столько, сколько нужно
+    ];
+    const balancesData = await loadCsvData(BALANCES_CSV_URL);
+    if (balancesData) {
+        // Если хотите уникальные записи по названию продукта в остатках, добавьте 'Наименование продукта'
+        renderTable(balancesData, 'balances-table-container', balancesHeaders); // Без уникальности
+        // renderTable(balancesData, 'balances-table-container', balancesHeaders, 'Наименование продукта'); // С уникальностью
+    } else {
+        document.getElementById('balances-table-container').innerHTML = '<p class="error-message">Не удалось загрузить данные об остатках. Проверьте URL или настройки публикации.</p>';
+        document.getElementById('balances-loading').style.display = 'none';
+    }
+
 
     // --- Загружаем транзакции ---
-    // Проверьте названия столбцов в вашем CSV для листа "Транзакции"
     const transactionHeaders = [
         { key: 'Дата', label: 'Дата' },
         { key: 'Сотрудник', label: 'Сотрудник' },
@@ -179,6 +167,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
 // --- Функция для сохранения страницы в PDF ---
+// ... (эта функция остается без изменений) ...
 document.getElementById('printPdfButton').addEventListener('click', async () => {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('p', 'mm', 'a4'); // 'p' - portrait, 'mm' - миллиметры, 'a4' - формат листа
