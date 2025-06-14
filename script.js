@@ -307,4 +307,27 @@ document.getElementById('printPdfButton').addEventListener('click', async () => 
         document.querySelector('h1').classList.remove('pdf-hidden');
     });
 });
+// script.js
 
+// ... (весь ваш текущий код выше) ...
+
+
+// --- РЕГИСТРАЦИЯ SERVICE WORKER'А (для PWA) ---
+// Этот код регистрирует файл sw.js, позволяя приложению работать офлайн.
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    // navigator.serviceWorker.register() сообщает браузеру, где найти файл Service Worker'а.
+    // Путь должен быть абсолютным от корня домена и включать имя вашего репозитория.
+    navigator.serviceWorker.register('/Terminal/sw.js') // <-- Убедитесь, что '/Terminal/' это ТОЧНО имя вашего репозитория
+      .then(registration => {
+        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+      })
+      .catch(err => {
+        console.error('ServiceWorker registration failed: ', err);
+        console.error('Возможные причины ошибки:', 
+                      '1. Неправильный путь к sw.js (проверьте имя репозитория).',
+                      '2. Файл sw.js отсутствует в корне репозитория.',
+                      '3. Ошибка синтаксиса внутри самого sw.js.');
+      });
+  });
+}
