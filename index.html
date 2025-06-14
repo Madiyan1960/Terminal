@@ -1,15 +1,39 @@
-<!doctype html>
-<html lang="en">
-  <head>
-  <link rel="manifest" href="/material-accounting-pwa/manifest.json" />
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/material-accounting-pwa/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React</title>
-    <script type="module" crossorigin src="/material-accounting-pwa/assets/index-DWn5te6_.js"></script>
-    <link rel="stylesheet" crossorigin href="/material-accounting-pwa/assets/index-BHNrNqNP.css">
-  </head>
-  <body>
-    <div id="root"></div>
-  </body>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Контроль склада</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Визуальный контроль склада</h1>
+
+        <div class="controls">
+            <button id="printPdfButton">Сохранить как PDF</button>
+        </div>
+
+        <div class="data-section">
+            <h2>Текущие остатки материалов</h2>
+            <p id="materials-loading" class="loading">Загрузка материалов...</p>
+            <div id="materials-table-container">
+                </div>
+        </div>
+
+        <hr>
+
+        <div class="data-section">
+            <h2>Последние транзакции</h2>
+            <p id="transactions-loading" class="loading">Загрузка транзакций...</p>
+            <div id="transactions-table-container">
+                </div>
+        </div>
+
+        </div>
+
+    <script src="script.js"></script>
+</body>
 </html>
