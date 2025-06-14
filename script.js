@@ -121,37 +121,37 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // --- Загружаем Остатки ---
-    const balancesHeaders = [
-        { key: 'Материал', label: 'Материал' },
-        { key: 'Наличие (принято по акту ед.)', label: 'Наличие (принято по акту ед.)' },
-        { key: 'Приход', label: 'Приход' },
-        { key: 'Расход', label: 'Расход' },
-        { key: 'Списание', label: 'Списание' },
-        { key: 'Возврат', label: 'Возврат' },
-        { key: 'Остаток', label: 'Остаток' } 
-    ];
-    let balancesData = await loadCsvData(BALANCES_CSV_URL);
+   // const balancesHeaders = [
+   //     { key: 'Материал', label: 'Материал' },
+     //   { key: 'Наличие (принято по акту ед.)', label: 'Наличие (принято по акту ед.)' },
+       // { key: 'Приход', label: 'Приход' },
+        //{ key: 'Расход', label: 'Расход' },
+        //{ key: 'Списание', label: 'Списание' },
+       // { key: 'Возврат', label: 'Возврат' },
+       // { key: 'Остаток', label: 'Остаток' } 
+  //  ];
+    //let balancesData = await loadCsvData(BALANCES_CSV_URL);
 
-    if (balancesData) {
+  //  if (balancesData) {
         // --- ФИЛЬТРАЦИЯ ДАННЫХ ДЛЯ ТАБЛИЦЫ "ОСТАТКИ": показываем только материалы с остатком > 0 ---
-        const quantityKey = 'Остаток'; // Имя столбца, по которому будем фильтровать.
+     //   const quantityKey = 'Остаток'; // Имя столбца, по которому будем фильтровать.
                                         // Убедитесь, что оно ТОЧНО совпадает с именем столбца в вашей таблице.
 
-        balancesData = balancesData.filter(row => {
-            const quantity = row[quantityKey];
-            return typeof quantity === 'number' && !isNaN(quantity) && quantity > 0;
-        });
+     //   balancesData = balancesData.filter(row => {
+       //     const quantity = row[quantityKey];
+       //     return typeof quantity === 'number' && !isNaN(quantity) && quantity > 0;
+      //  });
 
-        if (balancesData.length === 0) {
-            document.getElementById('balances-table-container').innerHTML = '<p>В данный момент нет материалов на складе (остаток > 0).</p>';
-            document.getElementById('balances-loading').style.display = 'none';
-        } else {
-            renderTable(balancesData, 'balances-table-container', balancesHeaders);
-        }
-    } else {
-        document.getElementById('balances-table-container').innerHTML = '<p class="error-message">Не удалось загрузить данные об остатках. Проверьте URL или настройки публикации.</p>';
-        document.getElementById('balances-loading').style.display = 'none';
-    }
+     //   if (balancesData.length === 0) {
+      //      document.getElementById('balances-table-container').innerHTML = '<p>В данный момент нет материалов на складе (остаток > 0).</p>';
+      //      document.getElementById('balances-loading').style.display = 'none';
+      //  } else {
+   //         renderTable(balancesData, 'balances-table-container', balancesHeaders);
+  //      }
+ //   } else {
+  //      document.getElementById('balances-table-container').innerHTML = '<p class="error-message">Не удалось загрузить данные об остатках. Проверьте URL или настройки публикации.</p>';
+  //      document.getElementById('balances-loading').style.display = 'none';
+ //   }
 
 
     // --- Загружаем транзакции ---
