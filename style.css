@@ -67,7 +67,7 @@ table {
 th, td {
     border: 1px solid #ddd; /* <-- ГРАНИЦЫ НАСТРАИВАЮТСЯ ЗДЕСЬ */
     padding: 6px 7px;
-    text-align: left;
+    text-align: center;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap; /* Если нужно, чтобы текст не переносился */
@@ -125,13 +125,13 @@ hr {
 /* Убедитесь, что сумма процентов для каждой таблицы составляет 100% или близко к этому */
 
 /* Таблица "Материалы" (class="materials-table") */
-.materials-table th:nth-child(1) { width: 5%; }
-.materials-table th:nth-child(2) { width: 25%; }
-.materials-table th:nth-child(3) { width: 8%; }
-.materials-table th:nth-child(4) { width: 12%; }
-.materials-table th:nth-child(5) { width: 20%; }
-.materials-table th:nth-child(6) { width: 15%; }
-.materials-table th:nth-child(7) { width: 15%; }
+.materials-table th:nth-child(1) { width: 5%; } /* ID */
+.materials-table th:nth-child(2) { width: 28%; } /* Название */
+.materials-table th:nth-child(3) { width: 5%; }  /* Ед.изм. */
+.materials-table th:nth-child(4) { width: 12%; } /* Мин. остаток */
+.materials-table th:nth-child(5) { width: 20%; } /* Кол-во на складе */
+.materials-table th:nth-child(6) { width: 15%; } /* Состояние */
+.materials-table th:nth-child(7) { width: 15%; } /* Оповещение */
 
 /* Таблица "Остатки" (class="balances-table") */
 /* Этот блок есть в CSS, но таблица удалена из HTML. Оставил для полноты. */
