@@ -2,8 +2,8 @@
 
 // Вставьте сюда ссылки на опубликованные CSV-файлы из вашей Google Таблицы
 // Важно: для первого листа (Материалы) часто не указывают gid, или он равен gid=0
-const MATERIALS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSfvwx5ehWEL28ttSX5pWRsOV42VLBHrIWIs6pHB7F4nRp3wRb0f04Jq-pfrPtN0OWaBiEKCGzNCkN3/pub?gid=0&single=true&output=csv'; 
-const TRANSACTIONS_CSV_URL = 'https://docs.google.com/sheets/d/e/2PACX-1vSfvwx5ehWEL28ttSX5pWRsOV42VLBHrIWIs6pHB7F4nRp3wRb0f04Jq-pfrPtN0OWaBiEKCGzNCkN3/pub?gid=224436106&single=true&output=csv'; 
+const MATERIALS_CSV_URL = 'https://docs.google.com/spreadsheets/d/138AarGc1IgO2AQwxQ4b2I62zqd-6re63VWZAh55TTn4/gviz/tq?tqx=out:csv&gid=0'; // или другой GID для вашего листа "Материалы"
+const TRANSACTIONS_CSV_URL = 'https://docs.google.com/spreadsheets/d/138AarGc1IgO2AQwxQ4b2I62zqd-6re63VWZAh55TTn4/gviz/tq?tqx=out:csv&gid=224436106'; // используйте свой GID
 
 
 // --- НОВАЯ ФУНКЦИЯ loadCsvData, использующая Papa Parse ---
