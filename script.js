@@ -2,9 +2,115 @@
 
 // Вставьте сюда ссылки на опубликованные CSV-файлы из вашей Google Таблицы
 const MATERIALS_CSV_URL = 'https://docs.google.com/spreadsheets/d/138AarGc1IgO2AQwxQ4b2I62zqd-6re63VWZAh55TTn4/gviz/tq?tqx=out:csv&gid=0'; // или другой GID для вашего листа "Материалы"
-
 const TRANSACTIONS_CSV_URL = 'https://docs.google.com/spreadsheets/d/138AarGc1IgO2AQwxQ4b2I62zqd-6re63VWZAh55TTn4/gviz/tq?tqx=out:csv&gid=224436106'; // используйте свой GID
+// --- ДОБАВЬТЕ ЭТИ ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ В НАЧАЛО ВАШЕГО script.js ---
+// (например, сразу после ваших констант MATERIALS_CSV_URL и TRANSACTIONS_CSV_URL)
+let globalMaterialsData = [];
+let globalTransactionsData = [];
 
+
+// --- ОБНОВИТЕ СЕКЦИИ ЗАГРУЗКИ ДАННЫХ (loadCsvData) ВНИЗУ ВАШЕГО script.js ---
+// Найдите блок document.addEventListener('DOMContentLoaded', async () => { ... });
+// И внутри него измените строки, где загружаются данные, так:
+
+// ... в секции загрузки материалов ...
+// const materialsData = await loadCsvData(MATERIALS_CSV_URL); // ЭТУ СТРОКУ ИЗМЕНИТЕ
+globalMaterialsData = await loadCsvData(MATERIALS_CSV_URL); // <-- ВОТ ТАК
+
+
+// ... в секции загрузки транзакций ...
+// const transactionsData = await loadCsvData(TRANSACTIONS_CSV_URL); // ЭТУ СТРОКУ ИЗМЕНИТЕ
+globalTransactionsData = await loadCsvData(TRANSACTIONS_CSV_URL); // <-- ВОТ ТАК
+
+
+// --- ДОБАВЬТЕ ЭТУ ФУНКЦИЮ exportToCsv В ЛЮБОЕ СВОБОДНОЕ МЕСТО ВАШЕГО script.js ---
+// (например, перед или после вашей функции renderTable, но вне других функций)
+function exportToCsv(filename, data, headersMap) {
+    if (!data || data.length === 0) {
+        alert(`Нет данных для экспорта в ${filename}.`);
+        return;
+    }
+
+    const headers = headersMap.map(h => h.label);
+
+    const csvDataForUnparse = [];
+    csvDataForUnparse.push(headers);
+
+    data.forEach(row => {
+        const newRow = [];
+        headersMap.forEach(h => {
+            const value = row[h.key] !== null && row[h.key] !== undefined ? row[h.key] : '';
+            newRow.push(value);
+        });
+        csvDataForUnparse.push(newRow);
+    });
+
+    const csvString = Papa.unparse(csvDataForUnparse, {
+        quotes: true,
+        delimiter: ',',
+        newline: '\r\n'
+    });
+
+    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+
+    const link = document.createElement('a');
+    if (link.download !== undefined) {
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', filename);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    } else {
+        window.open('data:text/csv;charset=utf-8,' + encodeURIComponent(csvString));
+    }
+}
+
+
+// --- ДОБАВЬТЕ ЭТОТ ОБРАБОТЧИК СОБЫТИЯ ВНИЗ ВАШЕГО script.js ---
+// (например, сразу перед или сразу после вашего обработчика printPdfButton)
+document.getElementById('exportCsvButton').addEventListener('click', () => {
+    // Заголовки для таблицы "Материалы"
+    const materialHeadersForExport = [
+        { key: 'ID', label: 'ID' },
+        { key: 'Название', label: 'Название' },
+        { key: 'Ед.изм.', label: 'Ед.изм.' },
+        { key: 'Мин. остаток', label: 'Мин. остаток' },
+        { key: 'Остаток', label: 'Количество' },
+        { key: 'Оповещение', label: 'Оповещение' }
+    ];
+    exportToCsv('материалы.csv', globalMaterialsData, materialHeadersForExport);
+
+    // Заголовки для таблицы "Транзакции"
+    const transactionHeadersForExport = [
+        { key: 'Дата', label: 'Дата' },
+        { key: 'Сотрудник', label: 'Сотрудник' },
+        { key: 'Поставщик', label: 'Поставщик' },
+        { key: 'Материал', label: 'Материал' },
+        { key: 'Тип', label: 'Тип' },
+        { key: 'Кол-во', label: 'Кол-во' },
+        { key: 'Комментарий', label: 'Комментарий' },
+    ];
+    exportToCsv('транзакции.csv', globalTransactionsData, transactionHeadersForExport);
+});
+
+
+// --- НЕ ЗАБУДЬТЕ ОБНОВИТЬ ОБРАБОТЧИК printPdfButton ---
+// (если вы хотите, чтобы кнопка Excel тоже скрывалась при генерации PDF)
+// Найдите ваш document.getElementById('printPdfButton').addEventListener('click', async () => { ... });
+// И внутри него в секциях скрытия/показа элементов добавьте/измените строки:
+
+// ... в секции скрытия элементов перед html2canvas ...
+document.getElementById('printPdfButton').classList.add('pdf-hidden');
+document.getElementById('exportCsvButton').classList.add('pdf-hidden'); // <-- ДОБАВЬТЕ ЭТУ СТРОКУ
+document.querySelector('h1').classList.add('pdf-hidden');
+
+
+// ... в секции возврата видимости после doc.save или при ошибке ...
+document.getElementById('printPdfButton').classList.remove('pdf-hidden');
+document.getElementById('exportCsvButton').classList.remove('pdf-hidden'); // <-- ДОБАВЬТЕ ЭТУ СТРОКУ
+document.querySelector('h1').classList.remove('pdf-hidden');
 
 // Функция для загрузки CSV-данных с помощью Papa Parse
 async function loadCsvData(url) {
