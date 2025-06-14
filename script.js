@@ -199,9 +199,6 @@ function exportToCsv(filename, data, headersMap) {
 }
 
 
----
-### **Обработчик событий для кнопок**
----
 
 // --- ЭТОТ БЛОК ВСТАВЬТЕ ВНИЗ ВАШЕГО script.js, СРАЗУ ПОСЛЕ ОБРАБОТЧИКА printPdfButton ---
 document.getElementById('exportCsvButton').addEventListener('click', () => {
