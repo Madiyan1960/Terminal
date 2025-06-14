@@ -56,7 +56,7 @@ button:hover {
 /* ОБЩИЕ СТИЛИ ДЛЯ ВСЕХ ТАБЛИЦ */
 table {
     width: 100%;
-    border-collapse: collapse; /* Важно: это схлопывает границы ячеек и позволяет им корректно отображаться */
+    border-collapse: collapse; /* Важно для отображения границ ячеек */
     margin-top: 20px;
     background-color: #fff;
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
@@ -65,7 +65,7 @@ table {
 
 /* СТИЛИ ДЛЯ ЗАГОЛОВКОВ ТАБЛИЦ И ЯЧЕЕК ДАННЫХ */
 th, td {
-    border: 1px solid #ddd; /* <-- ВОТ ГДЕ ОПРЕДЕЛЯЮТСЯ ГРАНИЦЫ */
+    border: 1px solid #ddd; /* <-- ГРАНИЦЫ НАСТРАИВАЮТСЯ ЗДЕСЬ */
     padding: 6px 7px;
     text-align: left;
     overflow: hidden;
@@ -165,7 +165,7 @@ hr {
         margin-bottom: 10px;
     }
     table {
-        font-size: 10px;
+        font-size: 10px; /* Уменьшаем шрифт для печати */
         page-break-inside: auto;
     }
     tr {
@@ -178,4 +178,10 @@ hr {
     .loading {
         display: none;
     }
+
+    /* ОПЦИОНАЛЬНО: Если нужна другая ширина столбцов специально для печати,
+       можно переопределить их здесь. В противном случае, унаследуют стили выше. */
+    /*
+    .materials-table th:nth-child(1) { width: 6%; } 
+    */
 }
