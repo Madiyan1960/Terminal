@@ -200,7 +200,7 @@ function exportToCsv(filename, data, headersMap) {
 
 
 
-// --- ЭТОТ БЛОК ВСТАВЬТЕ ВНИЗ ВАШЕГО script.js, СРАЗУ ПОСЛЕ ОБРАБОТЧИКА printPdfButton ---
+// - ЭТОТ БЛОК ВСТАВЬТЕ ВНИЗ ВАШЕГО script.js, СРАЗУ ПОСЛЕ ОБРАБОТЧИКА printPdfButton -
 document.getElementById('exportCsvButton').addEventListener('click', () => {
     // Заголовки для таблицы "Материалы"
     const materialHeadersForExport = [
