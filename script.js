@@ -154,11 +154,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 
----
-### **Функция для экспорта в CSV (Excel)**
----
-
-// --- ЭТУ ФУНКЦИЮ ВСТАВЬТЕ ГДЕ-НИБУДЬ ПОСЛЕ renderTable И ПЕРЕД document.addEventListener('DOMContentLoaded', ...) ---
+// -- ЭТУ ФУНКЦИЮ ВСТАВЬТЕ ГДЕ-НИБУДЬ ПОСЛЕ renderTable И ПЕРЕД document.addEventListener('DOMContentLoaded', ...) -
 // (например, сразу после закрывающей скобки функции renderTable)
 function exportToCsv(filename, data, headersMap) {
     if (!data || data.length === 0) {
