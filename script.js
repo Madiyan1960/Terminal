@@ -95,6 +95,7 @@ function renderTable(data, containerId, headersMap, uniqueByKey = null) {
         });
     });
 
+    // Очищаем контейнер и добавляем таблицу
     container.innerHTML = '';
     container.appendChild(table);
 }
@@ -105,6 +106,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const materialHeaders = [
         { key: 'ID', label: 'ID' },
         { key: 'Название', label: 'Название' },
+        { key: 'Ед.изм.', label: 'Ед.изм.' },
         { key: 'Мин. остаток', label: 'Мин. остаток' },
         { key: 'Наличие (принято по акту ед.)', label: 'Наличие (принято по акту ед.)' },
         { key: 'Остаток', label: 'Остаток' },
@@ -143,7 +145,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (balancesData.length === 0) {
             document.getElementById('balances-table-container').innerHTML = '<p>В данный момент нет материалов на складе (остаток > 0).</p>';
             document.getElementById('balances-loading').style.display = 'none';
-            // Не нужно вызывать renderTable, так как данных нет
         } else {
             renderTable(balancesData, 'balances-table-container', balancesHeaders);
         }
