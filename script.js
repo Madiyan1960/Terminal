@@ -1,11 +1,11 @@
 // script.js
 
 // Вставьте сюда ссылки на опубликованные CSV-файлы из вашей Google Таблицы
-const MATERIALS_CSV_URL = 'https://docs.google.com/spreadsheets/d/138AarGc1IgO2AQwxQ4b2I62zqd-6re63VWZAh55TTn4/gviz/tq?tqx=out:csv&gid=0'; // или другой GID для вашего листа "Материалы"
+   const MATERIALS_CSV_URL = 'https://docs.google.com/spreadsheets/d/138AarGc1IgO2AQwxQ4b2I62zqd-6re63VWZAh55TTn4/gviz/tq?tqx=out:csv&gid=0'; // или другой GID для вашего листа "Материалы"
+    const BALANCES_CSV_URL = 'https://docs.google.com/spreadsheets/d/138AarGc1IgO2AQwxQ4b2I62zqd-6re63VWZAh55TTn4/gviz/tq?tqx=out:csv&gid=1133040566'; // ЗАМЕНИТЕ НА СВОЙ РЕАЛЬНЫЙ URL!
 const TRANSACTIONS_CSV_URL = 'https://docs.google.com/spreadsheets/d/138AarGc1IgO2AQwxQ4b2I62zqd-6re63VWZAh55TTn4/gviz/tq?tqx=out:csv&gid=224436106'; // используйте свой GID
 
 // НОВЫЙ URL ДЛЯ ТАБЛИЦЫ ОСТАТКОВ
-//const BALANCES_CSV_URL = 'https://docs.google.com/spreadsheets/d/138AarGc1IgO2AQwxQ4b2I62zqd-6re63VWZAh55TTn4/edit#gid=1133040566'; // ЗАМЕНИТЕ НА СВОЙ РЕАЛЬНЫЙ URL!
 
 // --- НОВАЯ ФУНКЦИЯ loadCsvData, использующая Papa Parse ---
 // ... (эта функция остается без изменений) ...
