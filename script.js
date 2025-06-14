@@ -1,13 +1,12 @@
 // script.js
 
 // Вставьте сюда ссылки на опубликованные CSV-файлы из вашей Google Таблицы
-   const MATERIALS_CSV_URL = 'https://docs.google.com/spreadsheets/d/138AarGc1IgO2AQwxQ4b2I62zqd-6re63VWZAh55TTn4/gviz/tq?tqx=out:csv&gid=0'; // или другой GID для вашего листа "Материалы"
-    const BALANCES_CSV_URL = 'https://docs.google.com/spreadsheets/d/138AarGc1IgO2AQwxQ4b2I62zqd-6re63VWZAh55TTn4/gviz/tq?tqx=out:csv&gid=1133040566'; // ЗАМЕНИТЕ НА СВОЙ РЕАЛЬНЫЙ URL!
+const MATERIALS_CSV_URL = 'https://docs.google.com/spreadsheets/d/138AarGc1IgO2AQwxQ4b2I62zqd-6re63VWZAh55TTn4/gviz/tq?tqx=out:csv&gid=0'; // или другой GID для вашего листа "Материалы"
+const BALANCES_CSV_URL = 'https://docs.google.com/spreadsheets/d/138AarGc1IgO2AQwxQ4b2I62zqd-6re63VWZAh55TTn4/gviz/tq?tqx=out:csv&gid=1133040566'; // ЗАМЕНИТЕ НА СВОЙ РЕАЛЬНЫЙ URL!
 const TRANSACTIONS_CSV_URL = 'https://docs.google.com/spreadsheets/d/138AarGc1IgO2AQwxQ4b2I62zqd-6re63VWZAh55TTn4/gviz/tq?tqx=out:csv&gid=224436106'; // используйте свой GID
 
-// НОВЫЙ URL ДЛЯ ТАБЛИЦЫ ОСТАТКОВ
-// --- НОВАЯ ФУНКЦИЯ loadCsvData, использующая Papa Parse ---
-// ... (эта функция остается без изменений) ...
+
+// Функция для загрузки CSV-данных с помощью Papa Parse
 async function loadCsvData(url) {
     try {
         const response = await fetch(url);
@@ -40,8 +39,6 @@ async function loadCsvData(url) {
         return null;
     }
 }
-
-// ... (старая функция parseCsv - должна быть закомментирована или удалена) ...
 
 // Функция для отображения данных в таблице
 function renderTable(data, containerId, headersMap, uniqueByKey = null) {
@@ -122,23 +119,35 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('materials-loading').style.display = 'none';
     }
 
-    // --- НОВАЯ ЛОГИКА: Загружаем Остатки ---
+    // --- Загружаем Остатки ---
     const balancesHeaders = [
-        // ЗАМЕНИТЕ ЭТИ ЗАГОЛОВКИ НА РЕАЛЬНЫЕ ИЗ ВАШЕГО CSV-ФАЙЛА "Остатки"
         { key: 'Материал', label: 'Материал' },
         { key: 'Наличие (принято по акту ед.)', label: 'Наличие (принято по акту ед.)' },
         { key: 'Приход', label: 'Приход' },
         { key: 'Расход', label: 'Расход' },
         { key: 'Списание', label: 'Списание' },
         { key: 'Возврат', label: 'Возврат' },
-        { key: 'Остаток', label: 'Остаток' }
-        // Добавьте столько, сколько нужно
+        { key: 'Остаток', label: 'Остаток' } 
     ];
-    const balancesData = await loadCsvData(BALANCES_CSV_URL);
+    let balancesData = await loadCsvData(BALANCES_CSV_URL);
+
     if (balancesData) {
-        // Если хотите уникальные записи по названию продукта в остатках, добавьте 'Наименование продукта'
-        renderTable(balancesData, 'balances-table-container', balancesHeaders); // Без уникальности
-        // renderTable(balancesData, 'balances-table-container', balancesHeaders, 'Наименование продукта'); // С уникальностью
+        // --- ФИЛЬТРАЦИЯ ДАННЫХ ДЛЯ ТАБЛИЦЫ "ОСТАТКИ": показываем только материалы с остатком > 0 ---
+        const quantityKey = 'Остаток'; // Имя столбца, по которому будем фильтровать.
+                                        // Убедитесь, что оно ТОЧНО совпадает с именем столбца в вашей таблице.
+
+        balancesData = balancesData.filter(row => {
+            const quantity = row[quantityKey];
+            return typeof quantity === 'number' && !isNaN(quantity) && quantity > 0;
+        });
+
+        if (balancesData.length === 0) {
+            document.getElementById('balances-table-container').innerHTML = '<p>В данный момент нет материалов на складе (остаток > 0).</p>';
+            document.getElementById('balances-loading').style.display = 'none';
+            // Не нужно вызывать renderTable, так как данных нет
+        } else {
+            renderTable(balancesData, 'balances-table-container', balancesHeaders);
+        }
     } else {
         document.getElementById('balances-table-container').innerHTML = '<p class="error-message">Не удалось загрузить данные об остатках. Проверьте URL или настройки публикации.</p>';
         document.getElementById('balances-loading').style.display = 'none';
@@ -166,7 +175,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
 // --- Функция для сохранения страницы в PDF ---
-// ... (эта функция остается без изменений) ...
 document.getElementById('printPdfButton').addEventListener('click', async () => {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('p', 'mm', 'a4'); // 'p' - portrait, 'mm' - миллиметры, 'a4' - формат листа
