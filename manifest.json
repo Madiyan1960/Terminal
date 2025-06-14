@@ -2,7 +2,8 @@
   "name": "Учёт материалов ТКО",
   "short_name": "ТКО Склад",
   "description": "Приложение для учёта материалов на складе и у сотрудников для кассовых терминалов.",
-  "start_url": "/Terminal/index.html?source=pwa",
+  "id": "/Terminal/index.html?source=pwa",
+  
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#007bff",
