@@ -64,8 +64,6 @@ table {
 }
 
 /* СТИЛИ ДЛЯ ЗАГОЛОВКОВ ТАБЛИЦ И ЯЧЕЕК ДАННЫХ */
----
-/* СТИЛИ ДЛЯ ЗАГОЛОВКОВ ТАБЛИЦ И ЯЧЕЕК ДАННЫХ */
 th, td {
     border: 1px solid #ddd; /* <-- ГРАНИЦЫ НАСТРАИВАЮТСЯ ЗДЕСЬ */
     padding: 6px 7px;
@@ -136,7 +134,6 @@ hr {
 .materials-table th:nth-child(7) { width: 15%; }
 
 /* Таблица "Остатки" (class="balances-table") */
-/* ДОБАВЛЕННЫЙ БЛОК ДЛЯ ТАБЛИЦЫ ОСТАТКОВ */
 .balances-table th:nth-child(1) { width: 30%; } /* Материал */
 .balances-table th:nth-child(2) { width: 15%; } /* Наличие (принято по акту ед.) */
 .balances-table th:nth-child(3) { width: 10%; } /* Приход */
