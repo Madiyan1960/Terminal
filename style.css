@@ -128,15 +128,6 @@ hr {
 .materials-table th:nth-child(6) { width: 15%; }
 .materials-table th:nth-child(7) { width: 15%; }
 
-/* Таблица "Остатки" (class="balances-table") */
-.balances-table th:nth-child(1) { width: 30%; }
-.balances-table th:nth-child(2) { width: 15%; }
-.balances-table th:nth-child(3) { width: 10%; }
-.balances-table th:nth-child(4) { width: 10%; }
-.balances-table th:nth-child(5) { width: 10%; }
-.balances-table th:nth-child(6) { width: 10%; }
-.balances-table th:nth-child(7) { width: 15%; }
-
 /* Таблица "Транзакции" (class="transactions-table") */
 .transactions-table th:nth-child(1) { width: 10%; }
 .transactions-table th:nth-child(2) { width: 15%; }
