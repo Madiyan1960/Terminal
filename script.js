@@ -92,11 +92,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         const materialHeaders = [
             { key: 'ID', label: 'ID' },
             { key: 'Название', label: 'Название' },
-            { key: 'Ед.изм.', label: 'Ед.изм.' },
+            //*{ key: 'Ед.изм.', label: 'Ед.изм.' },//*
             { key: 'Мин. остаток', label: 'Мин. остаток' }, // Убедитесь, что название в CSV совпадает
             { key: 'Наличие (принято по акту ед.)', label: 'Наличие (принято по акту ед.)' },
             { key: 'Остаток', label: 'Остаток' }, // Возможно, у вас 'Текущий_Остаток'
-            { key: 'Оповещение', label: 'Описание' }
+            { key: 'Оповещение', label: 'Оповещение' }
         ];
         renderTable(materialsData, 'materials-table-container', materialHeaders);
     } else {
