@@ -60,20 +60,22 @@ table {
     margin-top: 20px;
     background-color: #fff;
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    /*table-layout: fixed; 
+    /* table-layout: fixed; */ /* Оставил закомментированным по вашему желанию для автоширины */
 }
 
 /* СТИЛИ ДЛЯ ЗАГОЛОВКОВ ТАБЛИЦ И ЯЧЕЕК ДАННЫХ */
 th, td {
-    border: 1px solid #ddd;
+    border: 1px solid #ddd; /* <-- ГРАНИЦЫ НАСТРАИВАЮТСЯ ЗДЕСЬ */
     padding: 6px 7px;
     text-align: left;
-    white-space: normal; /* <-- ИЗМЕНЕНО НА normal */
-    word-wrap: break-word; /* Для старых браузеров */
-    word-break: break-word; /* <-- ДОБАВЛЕНА ЭТА СТРОКА */
-    /* Если хотите, чтобы весь текст был виден, эти можно удалить: */
-    /* overflow: hidden; */
-    /* text-overflow: ellipsis; */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap; /* Если нужно, чтобы текст не переносился */
+    /* Если вы хотите, чтобы текст, несмотря на nowrap, все же разрывался в любом месте слова: */
+    /* word-break: break-all; */ 
+    /* Или, если вы хотите, чтобы текст переносился на новую строку: */
+    /* white-space: normal; */
+    /* word-break: break-word; */
 }
 
 /* СТИЛИ ДЛЯ ЗАГОЛОВКОВ СТОЛБЦОВ ТАБЛИЦЫ */
@@ -132,6 +134,7 @@ hr {
 .materials-table th:nth-child(7) { width: 15%; }
 
 /* Таблица "Остатки" (class="balances-table") */
+/* Этот блок есть в CSS, но таблица удалена из HTML. Оставил для полноты. */
 .balances-table th:nth-child(1) { width: 30%; } /* Материал */
 .balances-table th:nth-child(2) { width: 15%; } /* Наличие (принято по акту ед.) */
 .balances-table th:nth-child(3) { width: 10%; } /* Приход */
