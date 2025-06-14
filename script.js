@@ -318,7 +318,7 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     // navigator.serviceWorker.register() сообщает браузеру, где найти файл Service Worker'а.
     // Путь должен быть абсолютным от корня домена и включать имя вашего репозитория.
-    navigator.serviceWorker.register('/Terminal/sw.js') // <-- Убедитесь, что '/Terminal/' это ТОЧНО имя вашего репозитория
+    navigator.serviceWorker.register('/Terminal/service-worker.js') // <-- Убедитесь, что '/Terminal/' это ТОЧНО имя вашего репозитория
       .then(registration => {
         console.log('ServiceWorker registration successful with scope: ', registration.scope);
       })
