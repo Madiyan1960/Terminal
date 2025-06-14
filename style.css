@@ -65,17 +65,15 @@ table {
 
 /* СТИЛИ ДЛЯ ЗАГОЛОВКОВ ТАБЛИЦ И ЯЧЕЕК ДАННЫХ */
 th, td {
-    border: 1px solid #ddd; /* <-- ГРАНИЦЫ НАСТРАИВАЮТСЯ ЗДЕСЬ */
+    border: 1px solid #ddd;
     padding: 6px 7px;
     text-align: left;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap; /* Если нужно, чтобы текст не переносился */
-    /* Если вы хотите, чтобы текст, несмотря на nowrap, все же разрывался в любом месте слова: */
-    /* word-break: break-all; */ 
-    /* Или, если вы хотите, чтобы текст переносился на новую строку: */
-    /* white-space: normal; */
-    /* word-break: break-word; */
+    white-space: normal; /* <-- ИЗМЕНЕНО НА normal */
+    word-wrap: break-word; /* Для старых браузеров */
+    word-break: break-word; /* <-- ДОБАВЛЕНА ЭТА СТРОКА */
+    /* Если хотите, чтобы весь текст был виден, эти можно удалить: */
+    /* overflow: hidden; */
+    /* text-overflow: ellipsis; */
 }
 
 /* СТИЛИ ДЛЯ ЗАГОЛОВКОВ СТОЛБЦОВ ТАБЛИЦЫ */
