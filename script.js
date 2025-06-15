@@ -172,7 +172,7 @@ function exportToCsv(data, filename, headersMap) {
         return;
     }
 
-    const csvHeaders = headersMap.map(h => `"${h.label.replace(/"/g, '""')}"`).join(',');
+    const csvHeaders = headersMap.map(h => `"${h.label.replace(/"/g, '""')}"`).join(';');
 
     const csvRows = data.map(row => {
         return headersMap.map(h => {
@@ -186,7 +186,7 @@ function exportToCsv(data, filename, headersMap) {
                 }
             }
             return value;
-        }).join(',');
+        }).join(';');
     });
 
     const csvContent = [csvHeaders, ...csvRows].join('\n');
