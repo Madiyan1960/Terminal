@@ -104,7 +104,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // - Загружаем материалы -
     const materialHeaders = [
         { key: 'ID', label: 'ID' },
-        { key: 'Название', label: 'Название' },
+        { key: 'Название', label: 'Материал' },
         { key: 'Ед.изм.', label: 'Ед.изм.' },
         //{ key: 'Мин. остаток', label: 'Мин. остаток' },
         { key: 'Кол-во на складе', label: 'Кол-во на складе' },
