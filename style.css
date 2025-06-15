@@ -14,7 +14,7 @@ body {
     max-width: 1200px;
     margin: 0 auto;
     background-color: #fff;
-    padding: 15px;
+    padding: 10px;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
@@ -66,7 +66,7 @@ table {
 /* СТИЛИ ДЛЯ ЗАГОЛОВКОВ ТАБЛИЦ И ЯЧЕЕК ДАННЫХ */
 th, td {
     border: 1px solid #ddd; /* <-- ГРАНИЦЫ НАСТРАИВАЮТСЯ ЗДЕСЬ */
-    padding: 6px 7px;
+    padding: 2px 3px;
     text-align: left;
     overflow: hidden;
     text-overflow: ellipsis;
