@@ -101,12 +101,12 @@ function renderTable(data, containerId, headersMap, uniqueByKey = null) {
 
 // Загрузка и отображение данных при загрузке страницы
 document.addEventListener('DOMContentLoaded', async () => {
-    // --- Загружаем материалы ---
+    // - Загружаем материалы -
     const materialHeaders = [
         { key: 'ID', label: 'ID' },
         { key: 'Название', label: 'Название' },
         { key: 'Ед.изм.', label: 'Ед.изм.' },
-        { key: 'Мин. остаток', label: 'Мин. остаток' },
+        //{ key: 'Мин. остаток', label: 'Мин. остаток' },
         { key: 'Кол-во на складе', label: 'Кол-во на складе' },
         { key: 'Остаток', label: 'Остаток' },
         { key: 'Оповещение', label: 'Оповещение' }
@@ -119,7 +119,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('materials-loading').style.display = 'none';
     }
 
-    // --- Загружаем Остатки ---
+    // - Загружаем Остатки -
     const balancesHeaders = [
         { key: 'ID', label: 'ID' },
         { key: 'Материал', label: 'Материал' },
