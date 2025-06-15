@@ -6,7 +6,7 @@ const SPREADSHEET_ID = '138AarGc1IgO2AQwxQ4b2I62zqd-6re63VWZAh55TTn4';
 // URL-ы для получения данных из Google Таблиц в формате JSON
 // Используем Google Visualization API для обхода CORS и получения UTF-8 кодировки
 const MATERIALS_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&gid=0`;
-const BALANCES_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&gid=1133040566`;
+const BALANCES_URL = `https://docs.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&gid=1133040566`;
 const TRANSACTIONS_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&gid=224436106`;
 
 // Объявляем переменные для хранения данных таблиц в глобальной области видимости
@@ -36,7 +36,7 @@ function parseGoogleSheetJSON(jsonText) {
                 if (typeof value === 'object' && value !== null && value.length === 6) {
                     // Формат [year, month-1, day, hour, minute, second]
                     const [year, month, day, hour, minute, second] = value;
-                    // Создаем объект Date и форматируем как строку (например, YYYY-MM-DD HH:MM:SS)
+                    // Создаем объект Date и форматируем как строку (например, ГГГГ-MM-DD HH:MM:SS)
                     const date = new Date(year, month, day, hour, minute, second);
                     value = date.toLocaleDateString('ru-RU', {
                         year: 'numeric',
@@ -231,7 +231,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const balancesHeaders = [
         { key: 'ID', label: 'ID' },
         { key: 'Материал', label: 'Материал' },
-        { key: 'Наличие (принято по акту ед.)', label: 'Кол-во на складе' },
+        { key: 'Наличие (принято по акту ед.)', label: 'Кол-во на складе' }, // Возможно, это не совпадает с реальным заголовком в таблице.
+                                                                           // Убедитесь, что 'Наличие (принято по акту ед.)' - точное название столбца.
         { key: 'Приход', label: 'Приход' },
         { key: 'Расход', label: 'Расход' },
         { key: 'Списание', label: 'Списание' },
