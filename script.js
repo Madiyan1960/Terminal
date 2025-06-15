@@ -29,24 +29,68 @@ function parseGoogleSheetJSON(jsonText) {
         const parsedData = rows.map(row => {
             const rowObject = {};
             headers.forEach((header, index) => {
-                // 'v' содержит фактическое значение, 'f' - отформатированное (например, для дат)
-                let value = row.c[index] ? (row.c[index].v !== undefined ? row.c[index].v : row.c[index].f) : null;
+                let value = null;
+                const cell = row.c[index];
 
-                // Обработка специальных случаев для дат: Google может возвращать их в специфическом формате
-                // Пример формата: [2023, 10, 26, 0, 0, 0] для 26 ноября 2023
-                if (Array.isArray(value) && value.length === 6) {
-                    const [year, month, day, hour, minute, second] = value;
-                    // Месяц в JavaScript Date начинается с 0 (январь=0), в Google Sheets месяц обычно 0-11
+                if (cell) {
+                    // В первую очередь пробуем использовать отформатированное значение 'f',
+                    // если оно похоже на дату (например, "15.06.2025")
+                    // Это самый надежный способ получить нужный формат сразу
+                    if (cell.f && typeof cell.f === 'string' && /^\d{2}\.\d{2}\.\d{4}/.test(cell.f)) {
+                        value = cell.f;
+                    } else if (cell.v !== undefined) {
+                        value = cell.v;
+                    }
+                }
+                
+                // Обработка специальных случаев для дат из поля 'v'
+                // Google Sheets API возвращает даты в формате [год, месяц(0-11), день, час, минута, секунда] в поле 'v'
+                if (Array.isArray(value) && value.length >= 3) { // Проверяем минимум на год, месяц, день
+                    const [year, month, day, hour = 0, minute = 0, second = 0] = value;
+                    // Месяц в JavaScript Date начинается с 0 (январь=0), в Google Sheets месяц также 0-11
                     const date = new Date(year, month, day, hour, minute, second);
-                    // Форматируем дату в читаемый строковый формат для России
+                    // Форматируем дату в читаемый строковый формат для России (ДД.ММ.ГГГГ ЧЧ:ММ:СС)
                     value = date.toLocaleDateString('ru-RU', {
                         year: 'numeric',
                         month: '2-digit',
                         day: '2-digit',
-                        hour: '2-digit',
+                        hour: '2-digit',    // Оставляем час, минуту, секунду для форматирования времени
                         minute: '2-digit',
                         second: '2-digit'
                     });
+                    // Удаляем время, если оно 00:00:00, чтобы осталось только ДД.ММ.ГГГГ
+                    if (value.endsWith(' 00:00:00')) {
+                        value = value.substring(0, value.length - 9); // Удаляем " 00:00:00"
+                    }
+                } else if (typeof value === 'string' && value.startsWith('Date(') && value.endsWith(')')) {
+                    // Это обработка случая, если 'v' или 'f' пришел как строка типа "Date(2025,5,15)"
+                    try {
+                        const dateParts = value.substring(5, value.length - 1).split(',').map(Number);
+                        if (dateParts.length >= 3) {
+                            const year = dateParts[0];
+                            const month = dateParts[1]; // Месяц в этой строке уже 0-индексирован от Google
+                            const day = dateParts[2];
+                            const hour = dateParts[3] || 0;
+                            const minute = dateParts[4] || 0;
+                            const second = dateParts[5] || 0;
+
+                            const date = new Date(year, month, day, hour, minute, second);
+                            value = date.toLocaleDateString('ru-RU', {
+                                year: 'numeric',
+                                month: '2-digit',
+                                day: '2-digit',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                second: '2-digit'
+                            });
+                             if (value.endsWith(' 00:00:00')) {
+                                value = value.substring(0, value.length - 9);
+                            }
+                        }
+                    } catch (parseError) {
+                        console.warn('Could not parse date string (Date(Y,M,D) format):', value, parseError);
+                        value = ''; // В случае ошибки парсинга, устанавливаем пустую строку
+                    }
                 }
                 
                 // Преобразование булевых значений в читаемые строки (если необходимо)
