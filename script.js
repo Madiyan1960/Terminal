@@ -12,6 +12,8 @@ const TRANSACTIONS_CSV_URL = 'https://docs.google.com/sheets/d/138AarGc1IgO2AQwx
 // к ним мог получить доступ обработчик кнопки экспорта Excel.
 let globalMaterialsData = [];
 let globalTransactionsData = [];
+// Также сохраним отфильтрованные данные для экспорта, если они отличаются от исходных
+let exportedMaterialsData = [];
 
 
 // Функция для загрузки CSV-данных с помощью библиотеки Papa Parse.
@@ -50,28 +52,28 @@ async function loadCsvData(url) {
 }
 
 // Функция для отображения данных в HTML-таблице.
+// Теперь она также ВОЗВРАЩАЕТ обработанные данные.
 function renderTable(data, containerId, headersMap, uniqueByKey = null) {
     const container = document.getElementById(containerId);
-    const loadingMessage = container.previousElementSibling; // Находим сообщение о загрузке
+    const loadingMessage = container.previousElementSibling; 
     
     if (loadingMessage) {
-        loadingMessage.style.display = 'none'; // Скрываем сообщение о загрузке, когда данные готовы
+        loadingMessage.style.display = 'none'; 
     }
 
     if (!data || data.length === 0) {
         container.innerHTML = '<p>Данные отсутствуют или таблица пуста.</p>';
-        return;
+        return []; // Возвращаем пустой массив, если данных нет
     }
 
     let processedData = data;
 
-    // Логика для получения уникальных записей, если указан uniqueByKey (например, для материалов)
+    // Логика для получения уникальных записей, если указан uniqueByKey
     if (uniqueByKey && data.length > 0) {
         const seenKeys = new Set();
         processedData = data.filter(row => {
             const keyValue = row[uniqueByKey];
-            // Пропускаем строки с null/undefined ключами или уже виденными ключами
-            if (keyValue === null || keyValue === undefined || seenKeys.has(keyValue)) {
+            if (keyValue === null || keyValue === undefined || String(keyValue).trim() === '' || seenKeys.has(keyValue)) {
                 return false; 
             }
             seenKeys.add(keyValue);
@@ -82,13 +84,11 @@ function renderTable(data, containerId, headersMap, uniqueByKey = null) {
             console.warn(`Все строки были отфильтрованы при попытке получить уникальные значения по ключу "${uniqueByKey}". Проверьте данные или ключ.`);
             const keyLabel = headersMap.find(h => h.key === uniqueByKey)?.label || uniqueByKey;
             container.innerHTML = `<p>Нет уникальных данных по полю "${keyLabel}".</p>`;
-            return;
+            return []; // Возвращаем пустой массив
         }
     }
 
     const table = document.createElement('table');
-    // Добавляем класс таблице, чтобы применились стили из style.css
-    // (например, для 'materials-table-container' класс станет 'materials-table')
     const tableClass = containerId.replace('-table-container', ''); 
     table.classList.add(tableClass);
 
@@ -97,92 +97,75 @@ function renderTable(data, containerId, headersMap, uniqueByKey = null) {
     const tbody = table.createTBody();
     const headerRow = thead.insertRow();
 
-    // Определяем заголовки для отображения, если headersMap не задан, берем из данных
     const displayHeaders = headersMap || Object.keys(processedData[0]).map(key => ({ key, label: key }));
 
-    // Создаем заголовки таблицы (<th>)
     displayHeaders.forEach(h => {
         const th = document.createElement('th');
         th.textContent = h.label;
         headerRow.appendChild(th);
     });
 
-    // Заполняем тело таблицы (<td>)
     processedData.forEach(rowData => {
         const row = tbody.insertRow();
         displayHeaders.forEach(h => {
             const cell = row.insertCell();
-            // Проверяем на null/undefined, чтобы не выводить 'null' или 'undefined' в таблице
             cell.textContent = rowData[h.key] !== null && rowData[h.key] !== undefined ? rowData[h.key] : '';
         });
     });
 
-    // Очищаем контейнер и добавляем готовую таблицу
     container.innerHTML = '';
     container.appendChild(table);
+
+    return processedData; // Возвращаем обработанные данные
 }
 
 
 // --- ФУНКЦИЯ ДЛЯ ЭКСПОРТА ДАННЫХ В CSV (EXCEL) ---
-// Эта функция принимает имя файла, данные и карту заголовков для экспорта.
 function exportToCsv(filename, data, headersMap) {
-    // Если данных нет или они пусты, выводим предупреждение и выходим.
     if (!data || data.length === 0) {
         alert(`Нет данных для экспорта в ${filename}. Пожалуйста, убедитесь, что таблица не пуста.`);
         return;
     }
 
-    // Собираем заголовки CSV в нужном порядке, используя 'label' из headersMap.
-    // Это будут названия столбцов в вашем Excel-файле.
     const headers = headersMap.map(h => h.label);
 
-    // Подготавливаем данные для PapaParse: массив массивов.
-    // Первая строка - заголовки, затем строки с данными.
     const csvDataForUnparse = [];
-    csvDataForUnparse.push(headers); // Добавляем заголовки как первую строку CSV
+    csvDataForUnparse.push(headers); 
 
     data.forEach(row => {
         const newRow = [];
         headersMap.forEach(h => {
-            // Используем h.key для доступа к соответствующему свойству объекта данных.
-            // Если значение null/undefined, используем пустую строку, чтобы избежать 'null'/'undefined' в CSV.
             const value = row[h.key] !== null && row[h.key] !== undefined ? row[h.key] : '';
             newRow.push(value);
         });
         csvDataForUnparse.push(newRow);
     });
 
-    // Используем Papa.unparse() для преобразования массива массивов в CSV-строку.
     const csvString = Papa.unparse(csvDataForUnparse, {
-        quotes: true,  // Добавлять кавычки вокруг всех полей (хорошо для Excel, если есть запятые внутри текста)
-        delimiter: ';', // Используем точку с запятой как разделитель для лучшей совместимости с русской версией Excel
-        newline: '\r\n' // Стандартная новая строка для CSV (Windows-совместимая)
+        quotes: true,  
+        delimiter: ';', // Используем точку с запятой для совместимости с Excel
+        newline: '\r\n' 
     });
 
-    // --- ВАЖНО: Добавляем UTF-8 BOM в начало строки CSV ---
-    // Это позволяет Excel автоматически распознавать кодировку и правильно отображать русские символы.
-    const BOM = '\uFEFF';
+    const BOM = '\uFEFF'; // UTF-8 BOM для корректного отображения в Excel
     const blob = new Blob([BOM + csvString], { type: 'text/csv;charset=utf-8;' });
 
-    // Создаем ссылку для скачивания файла
     const link = document.createElement('a');
-    if (link.download !== undefined) { // Проверяем поддержку атрибута 'download' (для современных браузеров)
+    if (link.download !== undefined) { 
         const url = URL.createObjectURL(blob);
         link.setAttribute('href', url);
-        link.setAttribute('download', filename); // Устанавливаем имя файла для скачивания
-        link.style.visibility = 'hidden'; // Делаем ссылку невидимой
+        link.setAttribute('download', filename); 
+        link.style.visibility = 'hidden'; 
         document.body.appendChild(link);
-        link.click(); // Программно нажимаем на ссылку для скачивания
-        document.body.removeChild(link); // Удаляем ссылку после использования
+        link.click(); 
+        document.body.removeChild(link); 
     } else {
-        // Fallback для очень старых браузеров (открывает CSV в новой вкладке)
         window.open('data:text/csv;charset=utf-8,' + encodeURIComponent(csvString));
     }
 }
 
 
 // Загрузка и отображение данных при загрузке страницы.
-// Этот код выполняется, как только HTML-документ полностью загружен.
 document.addEventListener('DOMContentLoaded', async () => {
     // --- Загружаем материалы ---
     const materialHeaders = [
@@ -190,18 +173,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         { key: 'Название', label: 'Название' },
         { key: 'Ед.изм.', label: 'Ед.изм.' },
         { key: 'Мин. остаток', label: 'Мин. остаток' },
-        { key: 'Остаток', label: 'Количество' }, // Убедитесь, что это поле есть в вашей таблице и содержит числовые значения
+        { key: 'Остаток', label: 'Количество' }, 
         { key: 'Оповещение', label: 'Оповещение' }
     ];
-    // Данные материалов сохраняются в глобальную переменную.
     globalMaterialsData = await loadCsvData(MATERIALS_CSV_URL); 
     if (globalMaterialsData) {
-        // При отображении таблицы материалов также используем уникализацию по "Названию"
-        // (если это соответствует вашей логике отображения)
-        renderTable(globalMaterialsData, 'materials-table-container', materialHeaders, 'Название');
+        // Сохраняем обработанные (уникализированные) данные материалов для экспорта
+        exportedMaterialsData = renderTable(globalMaterialsData, 'materials-table-container', materialHeaders, 'Название');
     } else {
         document.getElementById('materials-table-container').innerHTML = '<p class="error-message">Не удалось загрузить данные о материалах. Проверьте URL или настройки публикации.</p>';
         document.getElementById('materials-loading').style.display = 'none';
+        exportedMaterialsData = []; // Устанавливаем пустой массив, если данные не загружены
     }
 
     // --- Загружаем транзакции ---
@@ -211,10 +193,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         { key: 'Поставщик', label: 'Поставщик' },
         { key: 'Материал', label: 'Материал' },
         { key: 'Тип', label: 'Тип' },
-        { key: 'Кол-во', label: 'Кол-во' }, // Убедитесь, что это поле есть в вашей таблице и содержит числовые значения
+        { key: 'Кол-во', label: 'Кол-во' }, 
         { key: 'Комментарий', label: 'Комментарий' },
     ];
-    // Данные транзакций сохраняются в глобальную переменную.
     globalTransactionsData = await loadCsvData(TRANSACTIONS_CSV_URL); 
     if (globalTransactionsData) {
         renderTable(globalTransactionsData, 'transactions-table-container', transactionHeaders);
@@ -228,23 +209,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 // --- ОБРАБОТЧИКИ КНОПОК ---
 
 // Обработчик события для кнопки "Сохранить как Excel (CSV)".
-// Он активируется при нажатии на кнопку и вызывает функцию exportToCsv для обеих таблиц.
 document.getElementById('exportCsvButton').addEventListener('click', () => {
-    // --- Фильтрация данных материалов для экспорта по уникальному ID ---
-    // Создаем Set для отслеживания уже встреченных ID
-    const seenMaterialIDs = new Set();
-    const uniqueMaterialsData = globalMaterialsData.filter(row => {
-        // Проверяем, что ID существует и еще не был добавлен
-        if (row['ID'] !== null && row['ID'] !== undefined && !seenMaterialIDs.has(row['ID'])) {
-            seenMaterialIDs.add(row['ID']);
-            return true; // Включаем эту строку, так как ID уникален
-        }
-        return false; // Исключаем строку, если ID пустой или уже встречен
-    });
-
-    // Заголовки для таблицы "Материалы" при экспорте.
-    // 'key' должен ТОЧНО совпадать с названием столбца в вашей Google Таблице.
-    // 'label' - это название столбца, которое будет отображаться в Excel.
+    // Для материалов используем уже обработанные данные, которые отображаются на странице
     const materialHeadersForExport = [
         { key: 'ID', label: 'ID' },
         { key: 'Название', label: 'Название' },
@@ -253,11 +219,10 @@ document.getElementById('exportCsvButton').addEventListener('click', () => {
         { key: 'Остаток', label: 'Количество' },
         { key: 'Оповещение', label: 'Оповещение' }
     ];
-    // Экспортируем ОТФИЛЬТРОВАННЫЕ данные материалов (только уникальные по ID)
-    exportToCsv('материалы.csv', uniqueMaterialsData, materialHeadersForExport);
+    // Экспортируем данные, которые уже были уникализированы функцией renderTable
+    exportToCsv('материалы.csv', exportedMaterialsData, materialHeadersForExport);
 
-    // Заголовки для таблицы "Транзакции" при экспорте.
-    // Транзакции обычно не уникальны по ID, поэтому экспортируем все транзакции.
+    // Для транзакций экспортируем все загруженные данные (без уникализации)
     const transactionHeadersForExport = [
         { key: 'Дата', label: 'Дата' },
         { key: 'Сотрудник', label: 'Сотрудник' },
@@ -274,52 +239,47 @@ document.getElementById('exportCsvButton').addEventListener('click', () => {
 // Обработчик события для кнопки "Сохранить как PDF".
 document.getElementById('printPdfButton').addEventListener('click', async () => {
     const { jsPDF } = window.jspdf;
-    const doc = new jsPDF('p', 'mm', 'a4'); // 'p' - портретная ориентация, 'mm' - миллиметры, 'a4' - формат листа
+    const doc = new jsPDF('p', 'mm', 'a4'); 
 
-    const container = document.querySelector('.container'); // Выбираем основной контейнер для печати
+    const container = document.querySelector('.container'); 
 
-    // Скрываем элементы, которые не должны попасть в PDF (кнопки, заголовки и т.д.)
     document.getElementById('printPdfButton').classList.add('pdf-hidden');
-    document.getElementById('exportCsvButton').classList.add('pdf-hidden'); // Скрываем кнопку Excel
-    document.querySelector('h1').classList.add('pdf-hidden'); // Скрываем общий заголовок страницы
+    document.getElementById('exportCsvButton').classList.add('pdf-hidden'); 
+    document.querySelector('h1').classList.add('pdf-hidden'); 
 
     html2canvas(container, {
-        scale: 2,         // Увеличиваем масштаб для лучшего качества PDF
-        useCORS: true,    // Важно, если есть изображения с других доменов
-        logging: true     // Включаем логирование для отладки
+        scale: 2,         
+        useCORS: true,    
+        logging: true     
     }).then(canvas => {
-        const imgData = canvas.toDataURL('image/png'); // Получаем изображение контейнера
-        const imgWidth = 210; // Ширина A4 в мм
-        const pageHeight = 297; // Высота A4 в мм
-        const imgHeight = canvas.height * imgWidth / canvas.width; // Вычисляем высоту изображения в мм
-        let heightLeft = imgHeight; // Оставшаяся высота изображения для размещения на страницах
+        const imgData = canvas.toDataURL('image/png'); 
+        const imgWidth = 210; 
+        const pageHeight = 297; 
+        const imgHeight = canvas.height * imgWidth / canvas.width; 
+        let heightLeft = imgHeight; 
 
-        let position = 0; // Текущая позиция на странице
+        let position = 0; 
 
-        // Добавляем изображение на первую страницу
         doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
         heightLeft -= pageHeight;
 
-        // Если изображение больше одной страницы, добавляем новые страницы
         while (heightLeft >= 0) {
-            position = heightLeft - imgHeight; // Смещаем позицию для следующей части изображения
-            doc.addPage(); // Добавляем новую страницу
-            doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight); // Добавляем оставшуюся часть изображения
+            position = heightLeft - imgHeight; 
+            doc.addPage(); 
+            doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight); 
             heightLeft -= pageHeight;
         }
 
-        doc.save('Отчет_Склад.pdf'); // Сохраняем PDF-файл
+        doc.save('Отчет_Склад.pdf'); 
 
-        // После сохранения PDF, возвращаем видимость скрытым элементам
         document.getElementById('printPdfButton').classList.remove('pdf-hidden');
-        document.getElementById('exportCsvButton').classList.remove('pdf-hidden'); // Возвращаем видимость кнопке Excel
+        document.getElementById('exportCsvButton').classList.remove('pdf-hidden'); 
         document.querySelector('h1').classList.remove('pdf-hidden');
     }).catch(error => {
         console.error('Ошибка при генерации PDF:', error);
         alert('Не удалось сгенерировать PDF. Проверьте консоль для подробностей.');
-        // В случае ошибки также возвращаем видимость элементам
         document.getElementById('printPdfButton').classList.remove('pdf-hidden');
-        document.getElementById('exportCsvButton').classList.remove('pdf-hidden'); // Возвращаем видимость кнопке Excel
+        document.getElementById('exportCsvButton').classList.remove('pdf-hidden'); 
         document.querySelector('h1').classList.remove('pdf-hidden');
     });
 });
