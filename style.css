@@ -133,8 +133,8 @@ hr {
 .materials-table th:nth-child(3) { width: 10%; }  /* Ед. изм. */
 /*.materials-table th:nth-child(4) { width: 10%; } /* Мин. остаток */
 .materials-table th:nth-child(5) { width: 10%; } /* Кол-во на складе */
-.materials-table th:nth-child(7) { width: 15%; } /* Остаток */
-.materials-table th:nth-child(8) { width: 15%; } /* Оповещение */
+.materials-table th:nth-child(7) { width: 10%; } /* Остаток */
+.materials-table th:nth-child(8) { width: 10%; } /* Оповещение */
 
 /* Таблица "Остатки" (class="balances-table") */
 /* Этот блок есть в CSS, но таблица удалена из HTML. Оставил для полноты. */
