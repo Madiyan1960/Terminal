@@ -354,4 +354,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 alert('Не удалось сгенерировать PDF. Проверьте консоль для подробностей.');
             } finally {
                 // Возвращаем видимость скрытым элементам в любом случае
-                printPdfButton.classList.remove
+                printPdfButton.classList.remove('pdf-hidden');
+                if (h1Element) h1Element.classList.remove('pdf-hidden');
+                if (controlsDiv) controlsDiv.classList.remove('pdf-hidden');
+            }
+        });
+    } else {
+        console.error('Кнопка "Сохранить в PDF" (id="printPdfButton") не найдена. Убедитесь, что она есть в index.html.');
+    }
+});
