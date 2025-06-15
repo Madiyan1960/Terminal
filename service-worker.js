@@ -5,8 +5,8 @@ self.addEventListener("install", event => {
         "/index.html",
         "/manifest.json",
         "/service-worker.js",
-        "/icons/icon-192.png",
-        "/icons/icon-512.png"
+        "/icons/icon-192x192.png",
+        "/icons/icon-512x512.png"
       ]);
     })
   );
