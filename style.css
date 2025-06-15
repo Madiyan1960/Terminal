@@ -128,13 +128,13 @@ hr {
 /* Убедитесь, что сумма процентов для каждой таблицы составляет 100% или близко к этому */
 
 /* Таблица "Материалы" (class="materials-table") */
-.materials-table th:nth-child(1) { width: 5%; } /* ID */
-.materials-table th:nth-child(2) { width: 35%; } /* Название */
+.materials-table th:nth-child(1) { width: 10%; } /* ID */
+.materials-table th:nth-child(2) { width: 30%; } /* Название */
 .materials-table th:nth-child(3) { width: 10%; }  /* Ед.изм. */
 /*.materials-table th:nth-child(4) { width: 10%; } /* Мин. остаток */
-.materials-table th:nth-child(5) { width: 15%; } /* Кол-во на складе */
-.materials-table th:nth-child(7) { width: 15%; } /* Состояние */
-.materials-table th:nth-child(8) { width: 20%; } /* Оповещение */
+.materials-table th:nth-child(5) { width: 12%; } /* Кол-во на складе */
+.materials-table th:nth-child(7) { width: 12%; } /* Состояние */
+.materials-table th:nth-child(8) { width: 26%; } /* Оповещение */
 
 /* Таблица "Остатки" (class="balances-table") */
 /* Этот блок есть в CSS, но таблица удалена из HTML. Оставил для полноты. */
