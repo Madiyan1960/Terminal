@@ -6,7 +6,7 @@ const SPREADSHEET_ID = '138AarGc1IgO2AQwxQ4b2I62zqd-6re63VWZAh55TTn4';
 // URL-ы для получения данных из Google Таблиц в формате JSON
 // Используем Google Visualization API для обхода CORS и получения UTF-8 кодировки
 const MATERIALS_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&gid=0`;
-const BALANCES_URL = `https://docs.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&gid=1133040566`;
+const BALANCES_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&gid=1133040566`;
 const TRANSACTIONS_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&gid=224436106`;
 
 // Объявляем переменные для хранения данных таблиц в глобальной области видимости
@@ -33,11 +33,12 @@ function parseGoogleSheetJSON(jsonText) {
                 let value = row.c[index] ? (row.c[index].v !== undefined ? row.c[index].v : row.c[index].f) : null;
 
                 // Обработка специальных случаев для дат: Google может возвращать их в специфическом формате
-                if (typeof value === 'object' && value !== null && value.length === 6) {
-                    // Формат [year, month-1, day, hour, minute, second]
+                // Пример формата: [2023, 10, 26, 0, 0, 0] для 26 ноября 2023
+                if (Array.isArray(value) && value.length === 6) {
                     const [year, month, day, hour, minute, second] = value;
-                    // Создаем объект Date и форматируем как строку (например, ГГГГ-MM-DD HH:MM:SS)
+                    // Месяц в JavaScript Date начинается с 0 (январь=0), в Google Sheets месяц обычно 0-11
                     const date = new Date(year, month, day, hour, minute, second);
+                    // Форматируем дату в читаемый строковый формат для России
                     value = date.toLocaleDateString('ru-RU', {
                         year: 'numeric',
                         month: '2-digit',
@@ -79,6 +80,7 @@ async function loadGoogleSheetData(url) {
     try {
         const response = await fetch(url);
         if (!response.ok) {
+            // Если статус 404, это может быть проблема публикации или URL
             throw new Error(`HTTP error! status: ${response.status} from ${url}`);
         }
         const text = await response.text(); // Fetch as text, then parse JSON manually
@@ -189,7 +191,9 @@ function exportToCsv(data, filename, headersMap) {
 
     const csvContent = [csvHeaders, ...csvRows].join('\n');
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    // Создаем Blob с явным указанием UTF-8 BOM для совместимости с Excel на Windows
+    const BOM = '\uFEFF'; // UTF-8 BOM
+    const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     if (link.download !== undefined) {
         const url = URL.createObjectURL(blob);
@@ -208,9 +212,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ЗАГОЛОВКИ ДОЛЖНЫ БЫТЬ ТОЧНО ТАКИМИ ЖЕ, КАК В ВАШИХ GOOGLE ТАБЛИЦАХ (в UTF-8)!
     const materialHeaders = [
         { key: 'ID', label: 'ID' },
-        { key: 'Название', label: 'Материал' },
+        { key: 'Название', label: 'Материал' }, // Убедитесь, что 'Название' - точное название столбца в Google Sheets
         { key: 'Ед.изм.', label: 'Ед.изм.' },
-        // { key: 'Мин. остаток', label: 'Мин. остаток' }, // Если не отображается, закомментируйте
+        // { key: 'Мин. остаток', label: 'Мин. остаток' }, // Если такого столбца нет, закомментируйте или удалите
         { key: 'Кол-во на складе', label: 'Кол-во на складе' },
         { key: 'Остаток', label: 'Остаток' },
         { key: 'Оповещение', label: 'Оповещение' }
@@ -247,6 +251,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const quantityKey = 'Остаток';
         tempBalancesData = tempBalancesData.filter(row => {
             const quantity = row[quantityKey];
+            // Убедитесь, что Остаток - это число и больше 0
             return typeof quantity === 'number' && !isNaN(quantity) && quantity > 0;
         });
 
@@ -349,12 +354,4 @@ document.addEventListener('DOMContentLoaded', async () => {
                 alert('Не удалось сгенерировать PDF. Проверьте консоль для подробностей.');
             } finally {
                 // Возвращаем видимость скрытым элементам в любом случае
-                printPdfButton.classList.remove('pdf-hidden');
-                if (h1Element) h1Element.classList.remove('pdf-hidden');
-                if (controlsDiv) controlsDiv.classList.remove('pdf-hidden');
-            }
-        });
-    } else {
-        console.error('Кнопка "Сохранить в PDF" (id="printPdfButton") не найдена. Убедитесь, что она есть в index.html.');
-    }
-});
+                printPdfButton.classList.remove
