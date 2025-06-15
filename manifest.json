@@ -1,6 +1,6 @@
 {
-  "name": "Магазин у дома",
-  "short_name": "Магазин",
+  "name": "Склад",
+  "short_name": "Склад",
   "start_url": "index.html?source=pwa",
 
   "display": "standalone",
