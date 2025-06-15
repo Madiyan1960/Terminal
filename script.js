@@ -1,9 +1,10 @@
 // script.js
 
-// Вставьте сюда ссылки на опубликованные CSV-файлы из вашей Google Таблицы
-// ИСПОЛЬЗУЕМ НОВЫЙ ФОРМАТ URL ДЛЯ CORS-СОВМЕСТИМОГО JSON
+// Вставьте сюда ID вашей Google Таблицы
 const SPREADSHEET_ID = '138AarGc1IgO2AQwxQ4b2I62zqd-6re63VWZAh55TTn4';
 
+// URL-ы для получения данных из Google Таблиц в формате JSON
+// Используем Google Visualization API для обхода CORS и получения UTF-8 кодировки
 const MATERIALS_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&gid=0`;
 const BALANCES_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&gid=1133040566`;
 const TRANSACTIONS_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&gid=224436106`;
@@ -14,28 +15,59 @@ let balancesData = [];
 let transactionsData = [];
 
 // --- НОВАЯ ФУНКЦИЯ: Парсинг JSON-ответа от Google Sheets ---
+// Google Sheets API возвращает JSON, обернутый в функцию "google.visualization.Query.setResponse(...);"
 function parseGoogleSheetJSON(jsonText) {
-    // Google Sheets API returns JSON wrapped in "google.visualization.Query.setResponse(...);"
-    const jsonString = jsonText.substring(jsonText.indexOf('{'), jsonText.lastIndexOf('}') + 1);
-    const data = JSON.parse(jsonString);
+    try {
+        // Извлекаем чистый JSON-строку из ответа
+        const jsonString = jsonText.substring(jsonText.indexOf('{'), jsonText.lastIndexOf('}') + 1);
+        const data = JSON.parse(jsonString);
 
-    const headers = data.table.cols.map(col => col.label || col.id);
-    const rows = data.table.rows;
+        // Извлекаем заголовки (используем label, если есть, иначе id)
+        const headers = data.table.cols.map(col => col.label || col.id);
+        const rows = data.table.rows;
 
-    const parsedData = rows.map(row => {
-        const rowObject = {};
-        headers.forEach((header, index) => {
-            let value = row.c[index] ? row.c[index].v : null; // 'v' is the actual value
-            // Handle specific data types if needed (e.g., dates)
-            if (value === undefined || value === null) {
-                value = ''; // Ensure empty string for null/undefined
-            }
-            rowObject[header] = value;
+        const parsedData = rows.map(row => {
+            const rowObject = {};
+            headers.forEach((header, index) => {
+                // 'v' содержит фактическое значение, 'f' - отформатированное (например, для дат)
+                let value = row.c[index] ? (row.c[index].v !== undefined ? row.c[index].v : row.c[index].f) : null;
+
+                // Обработка специальных случаев для дат: Google может возвращать их в специфическом формате
+                if (typeof value === 'object' && value !== null && value.length === 6) {
+                    // Формат [year, month-1, day, hour, minute, second]
+                    const [year, month, day, hour, minute, second] = value;
+                    // Создаем объект Date и форматируем как строку (например, YYYY-MM-DD HH:MM:SS)
+                    const date = new Date(year, month, day, hour, minute, second);
+                    value = date.toLocaleDateString('ru-RU', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit'
+                    });
+                }
+                
+                // Преобразование булевых значений в читаемые строки (если необходимо)
+                if (typeof value === 'boolean') {
+                    value = value ? 'Да' : 'Нет';
+                }
+
+                // Обеспечиваем пустую строку для null/undefined/пустых значений
+                if (value === undefined || value === null) {
+                    value = '';
+                }
+
+                rowObject[header] = value;
+            });
+            return rowObject;
         });
-        return rowObject;
-    });
 
-    return parsedData;
+        return parsedData;
+    } catch (e) {
+        console.error('Ошибка парсинга JSON от Google Sheet:', e, 'Исходный текст:', jsonText);
+        return null;
+    }
 }
 
 // --- Функция для загрузки данных (теперь для JSON) ---
@@ -47,31 +79,32 @@ async function loadGoogleSheetData(url) {
     try {
         const response = await fetch(url);
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            throw new Error(`HTTP error! status: ${response.status} from ${url}`);
         }
         const text = await response.text(); // Fetch as text, then parse JSON manually
         return parseGoogleSheetJSON(text);
 
     } catch (error) {
         console.error('Ошибка загрузки данных Google Sheet:', error);
+        // Дополнительная информация для отладки CORS/404
+        if (error.message.includes('blocked by CORS policy') || error.message.includes('404')) {
+             console.error("Возможно, URL неверен, или лист не опубликован должным образом, или есть проблемы с доступом. Убедитесь, что лист опубликован 'для всех, у кого есть ссылка'.");
+        }
         return null;
     }
 }
 
 // --- Функция для отображения данных в таблице ---
-// Добавлен параметр 'tableClass' для применения CSS-классов к создаваемой таблице
 function renderTable(data, containerId, headersMap, uniqueByKey = null, tableClass = null) {
     const container = document.getElementById(containerId);
-    // Проверяем, существует ли контейнер
     if (!container) {
         console.error(`Контейнер с ID "${containerId}" не найден.`);
         return;
     }
 
-    const loadingMessage = container.previousElementSibling; // Предполагаем, что сообщение загрузки прямо перед контейнером
-
+    const loadingMessage = container.previousElementSibling;
     if (loadingMessage) {
-        loadingMessage.style.display = 'none'; // Скрываем сообщение о загрузке
+        loadingMessage.style.display = 'none';
     }
 
     if (!data || data.length === 0) {
@@ -86,7 +119,6 @@ function renderTable(data, containerId, headersMap, uniqueByKey = null, tableCla
         const seenKeys = new Set();
         processedData = data.filter(row => {
             const keyValue = row[uniqueByKey];
-            // Также проверяем на пустую строку для надежности
             if (keyValue === null || keyValue === undefined || keyValue === '' || seenKeys.has(keyValue)) {
                 return false;
             }
@@ -95,7 +127,6 @@ function renderTable(data, containerId, headersMap, uniqueByKey = null, tableCla
         });
 
         if (processedData.length === 0 && data.length > 0) {
-            // Если после фильтрации данных не осталось, но исходные данные были
             const keyLabel = headersMap.find(h => h.key === uniqueByKey)?.label || uniqueByKey;
             console.warn(`Все строки были отфильтрованы при попытке получить уникальные значения по ключу "${keyLabel}". Проверьте данные или ключ.`);
             container.innerHTML = `<p>Нет уникальных данных по полю "${keyLabel}".</p>`;
@@ -105,13 +136,14 @@ function renderTable(data, containerId, headersMap, uniqueByKey = null, tableCla
 
     const table = document.createElement('table');
     if (tableClass) {
-        table.classList.add(tableClass); // <--- Добавляем класс к таблице
+        table.classList.add(tableClass);
     }
     const thead = table.createTHead();
     const tbody = table.createTBody();
     const headerRow = thead.insertRow();
 
-    const displayHeaders = headersMap || Object.keys(processedData[0]).map(key => ({ key, label: key }));
+    // Определяем заголовки для отображения. Если headersMap не предоставлен, используем ключи из первого объекта данных.
+    const displayHeaders = headersMap && headersMap.length > 0 ? headersMap : Object.keys(processedData[0]).map(key => ({ key, label: key }));
 
     displayHeaders.forEach(h => {
         const th = document.createElement('th');
@@ -123,27 +155,23 @@ function renderTable(data, containerId, headersMap, uniqueByKey = null, tableCla
         const row = tbody.insertRow();
         displayHeaders.forEach(h => {
             const cell = row.insertCell();
-            // Проверяем на null/undefined/пустую строку, чтобы отображать пустую строку, а не "null"
             cell.textContent = (rowData[h.key] !== null && rowData[h.key] !== undefined && rowData[h.key] !== '') ? rowData[h.key] : '';
         });
     });
 
-    container.innerHTML = ''; // Очищаем контейнер перед добавлением таблицы
+    container.innerHTML = '';
     container.appendChild(table);
 }
 
-// --- НОВАЯ ФУНКЦИЯ: Экспорт данных в CSV ---
-// Эта функция останется без изменений, так как она работает с уже полученными данными.
+// --- Функция: Экспорт данных в CSV ---
 function exportToCsv(data, filename, headersMap) {
     if (!data || data.length === 0) {
         console.warn(`Нет данных для экспорта в файл ${filename}.csv`);
         return;
     }
 
-    // 1. Создаем строку заголовков CSV
     const csvHeaders = headersMap.map(h => `"${h.label.replace(/"/g, '""')}"`).join(',');
 
-    // 2. Создаем строки данных CSV
     const csvRows = data.map(row => {
         return headersMap.map(h => {
             let value = row[h.key];
@@ -151,7 +179,6 @@ function exportToCsv(data, filename, headersMap) {
                 value = '';
             } else {
                 value = String(value).replace(/"/g, '""');
-                // Оборачиваем в кавычки, если значение содержит запятые, кавычки или переносы строк
                 if (value.includes(',') || value.includes('"') || value.includes('\n')) {
                     value = `"${value}"`;
                 }
@@ -160,48 +187,47 @@ function exportToCsv(data, filename, headersMap) {
         }).join(',');
     });
 
-    // Объединяем заголовки и строки данных
     const csvContent = [csvHeaders, ...csvRows].join('\n');
 
-    // 3. Создаем Blob и ссылку для скачивания
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
-    if (link.download !== undefined) { // Проверяем поддержку атрибута download
+    if (link.download !== undefined) {
         const url = URL.createObjectURL(blob);
         link.setAttribute('href', url);
         link.setAttribute('download', `${filename}.csv`);
-        link.style.visibility = 'hidden'; // Скрываем ссылку
+        link.style.visibility = 'hidden';
         document.body.appendChild(link);
-        link.click(); // Имитируем клик по ссылке
-        document.body.removeChild(link); // Удаляем ссылку после клика
+        link.click();
+        document.body.removeChild(link);
     }
 }
-
 
 // --- Загрузка и отображение данных при загрузке страницы (ЕДИНСТВЕННЫЙ DOMContentLoaded) ---
 document.addEventListener('DOMContentLoaded', async () => {
     // - Загружаем материалы -
+    // ЗАГОЛОВКИ ДОЛЖНЫ БЫТЬ ТОЧНО ТАКИМИ ЖЕ, КАК В ВАШИХ GOOGLE ТАБЛИЦАХ (в UTF-8)!
     const materialHeaders = [
         { key: 'ID', label: 'ID' },
         { key: 'Название', label: 'Материал' },
         { key: 'Ед.изм.', label: 'Ед.изм.' },
+        // { key: 'Мин. остаток', label: 'Мин. остаток' }, // Если не отображается, закомментируйте
         { key: 'Кол-во на складе', label: 'Кол-во на складе' },
         { key: 'Остаток', label: 'Остаток' },
         { key: 'Оповещение', label: 'Оповещение' }
     ];
-    // Используем новую функцию loadGoogleSheetData
     const loadedMaterials = await loadGoogleSheetData(MATERIALS_URL);
     if (loadedMaterials) {
         materialsData = loadedMaterials;
         renderTable(materialsData, 'materials-table-container', materialHeaders, 'Название', 'materials-table');
     } else {
-        document.getElementById('materials-table-container').innerHTML = '<p class="error-message">Не удалось загрузить данные о материалах. Проверьте URL или настройки публикации.</p>';
-        // Убедитесь, что 'materials-loading' существует в HTML
-        const materialsLoading = document.getElementById('materials-loading');
-        if (materialsLoading) materialsLoading.style.display = 'none';
+        const container = document.getElementById('materials-table-container');
+        if (container) container.innerHTML = '<p class="error-message">Не удалось загрузить данные о материалах. Проверьте URL или настройки публикации.</p>';
+        const loading = document.getElementById('materials-loading');
+        if (loading) loading.style.display = 'none';
     }
 
     // - Загружаем Движение материалов (Остатки) -
+    // ЗАГОЛОВКИ ДОЛЖНЫ БЫТЬ ТОЧНО ТАКИМИ ЖЕ, КАК В ВАШИХ GOOGLE ТАБЛИЦАХ (в UTF-8)!
     const balancesHeaders = [
         { key: 'ID', label: 'ID' },
         { key: 'Материал', label: 'Материал' },
@@ -212,7 +238,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         { key: 'Возврат', label: 'Возврат' },
         { key: 'Остаток', label: 'Остаток' }
     ];
-    // Используем новую функцию loadGoogleSheetData
     const loadedBalances = await loadGoogleSheetData(BALANCES_URL);
 
     if (loadedBalances) {
@@ -227,21 +252,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         balancesData = tempBalancesData;
 
         if (balancesData.length === 0) {
-            document.getElementById('balances-table-container').innerHTML = '<p>В данный момент нет материалов на складе (остаток > 0).</p>';
-            // Убедитесь, что 'balances-loading' существует в HTML
-            const balancesLoading = document.getElementById('balances-loading');
-            if (balancesLoading) balancesLoading.style.display = 'none';
+            const container = document.getElementById('balances-table-container');
+            if (container) container.innerHTML = '<p>В данный момент нет материалов на складе (остаток > 0).</p>';
+            const loading = document.getElementById('balances-loading');
+            if (loading) loading.style.display = 'none';
         } else {
             renderTable(balancesData, 'balances-table-container', balancesHeaders, null, 'balances-table');
         }
     } else {
-        document.getElementById('balances-table-container').innerHTML = '<p class="error-message">Не удалось загрузить данные об остатках. Проверьте URL или настройки публикации.</p>';
-        // Убедитесь, что 'balances-loading' существует в HTML
-        const balancesLoading = document.getElementById('balances-loading');
-        if (balancesLoading) balancesLoading.style.display = 'none';
+        const container = document.getElementById('balances-table-container');
+        if (container) container.innerHTML = '<p class="error-message">Не удалось загрузить данные об остатках. Проверьте URL или настройки публикации.</p>';
+        const loading = document.getElementById('balances-loading');
+        if (loading) loading.style.display = 'none';
     }
 
     // --- Загружаем транзакции ---
+    // ЗАГОЛОВКИ ДОЛЖНЫ БЫТЬ ТОЧНО ТАКИМИ ЖЕ, КАК В ВАШИХ GOOGLE ТАБЛИЦАХ (в UTF-8)!
     const transactionHeaders = [
         { key: 'Дата', label: 'Дата' },
         { key: 'Сотрудник', label: 'Сотрудник' },
@@ -251,20 +277,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         { key: 'Кол-во', label: 'Кол-во' },
         { key: 'Комментарий', label: 'Комментарий' },
     ];
-    // Используем новую функцию loadGoogleSheetData
     const loadedTransactions = await loadGoogleSheetData(TRANSACTIONS_URL);
     if (loadedTransactions) {
         transactionsData = loadedTransactions;
         renderTable(transactionsData, 'transactions-table-container', transactionHeaders, null, 'transactions-table');
     } else {
-        document.getElementById('transactions-table-container').innerHTML = '<p class="error-message">Не удалось загрузить данные о транзакциях. Проверьте URL или настройки публикации.</p>';
-        // Убедитесь, что 'transactions-loading' существует в HTML
-        const transactionsLoading = document.getElementById('transactions-loading');
-        if (transactionsLoading) transactionsLoading.style.display = 'none';
+        const container = document.getElementById('transactions-table-container');
+        if (container) container.innerHTML = '<p class="error-message">Не удалось загрузить данные о транзакциях. Проверьте URL или настройки публикации.</p>';
+        const loading = document.getElementById('transactions-loading');
+        if (loading) loading.style.display = 'none';
     }
 
     // --- Обработчики кнопок ---
-    // Убедитесь, что кнопки с этими ID добавлены в ваш index.html
     const exportExcelButton = document.getElementById('exportExcelButton');
     if (exportExcelButton) {
         exportExcelButton.addEventListener('click', () => {
@@ -273,7 +297,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             exportToCsv(transactionsData, 'Транзакции', transactionHeaders);
         });
     } else {
-        console.error('Кнопка "Экспорт в Excel" (id="exportExcelButton") не найдена.');
+        console.error('Кнопка "Экспорт в Excel" (id="exportExcelButton") не найдена. Убедитесь, что она есть в index.html.');
     }
 
     const printPdfButton = document.getElementById('printPdfButton');
@@ -314,7 +338,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     position = heightLeft - imgHeight;
                     doc.addPage();
                     doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-                    heightLeft -= pageHeight; // Corrected from pagePage
+                    heightLeft -= pageHeight;
                 }
 
                 doc.save('Отчет_Склад.pdf');
@@ -330,6 +354,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         });
     } else {
-        console.error('Кнопка "Сохранить в PDF" (id="printPdfButton") не найдена.');
+        console.error('Кнопка "Сохранить в PDF" (id="printPdfButton") не найдена. Убедитесь, что она есть в index.html.');
     }
 });
