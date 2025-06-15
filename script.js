@@ -5,7 +5,7 @@
 // и выберите формат ".csv". Ссылки должны начинаться с "/e/.../pub?gid=...".
 const MATERIALS_CSV_URL = 'https://docs.google.com/spreadsheets/d/138AarGc1IgO2AQwxQ4b2I62zqd-6re63VWZAh55TTn4/gviz/tq?tqx=out:csv&gid=0'; // ЗАМЕНИТЕ НА ВАШУ РЕАЛЬНУЮ ССЫЛКУ для материалов
 const TRANSACTIONS_CSV_URL = 'https://docs.google.com/spreadsheets/d/138AarGc1IgO2AQwxQ4b2I62zqd-6re63VWZAh55TTn4/gviz/tq?tqx=out:csv&gid=224436106'; // ЗАМЕНИТЕ НА ВАШУ РЕАЛЬНУЮ ССЫЛКУ для транзакций
-
+const BALANCES_CSV_URL = 'https://docs.google.com/sheets/d/138AarGc1IgO2AQwxQ4b2I62zqd-6re63VWZAh55TTn4/gviz/tq?tqx=out:csv&gid=1133040566'; // ЗАМЕНИТЕ НА СВОЙ РЕАЛЬНЫЙ URL!
 
 // --- ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ДЛЯ ХРАНЕНИЯ ЗАГРУЖЕННЫХ ДАННЫХ ---
 // Эти переменные объявлены в глобальной области видимости, чтобы
