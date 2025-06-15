@@ -129,12 +129,12 @@ hr {
 
 /* Таблица "Материалы" (class="materials-table") */
 .materials-table th:nth-child(1) { width: 6%; } /* ID */
-.materials-table th:nth-child(2) { width: 34%; } /* Название */
+.materials-table th:nth-child(2) { width: 44%; } /* Название */
 .materials-table th:nth-child(3) { width: 10%; }  /* Ед.изм. */
 /*.materials-table th:nth-child(4) { width: 10%; } /* Мин. остаток */
-.materials-table th:nth-child(5) { width: 12%; } /* Кол-во на складе */
-.materials-table th:nth-child(7) { width: 12%; } /* Состояние */
-.materials-table th:nth-child(8) { width: 26%; } /* Оповещение */
+.materials-table th:nth-child(5) { width: 10%; } /* Кол-во на складе */
+.materials-table th:nth-child(7) { width: 10%; } /* Состояние */
+.materials-table th:nth-child(8) { width: 20%; } /* Оповещение */
 
 /* Таблица "Остатки" (class="balances-table") */
 /* Этот блок есть в CSS, но таблица удалена из HTML. Оставил для полноты. */
