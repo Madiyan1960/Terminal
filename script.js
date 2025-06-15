@@ -3,8 +3,8 @@
 // Вставьте сюда ваши актуальные ссылки на опубликованные CSV-файлы из Google Таблиц.
 // ОБЯЗАТЕЛЬНО: Получите эти ссылки через "Файл" -> "Поделиться" -> "Опубликовать в Интернете"
 // и выберите формат ".csv". Ссылки должны начинаться с "/e/.../pub?gid=...".
-const MATERIALS_CSV_URL = 'https://docs.google.com/spreadsheets/d/138AarGc1IgO2AQwxQ4b2I62zqd-6re63VWZAh55TTn4/gviz/tq?tqx=out:csv&gid=0'; // ЗАМЕНИТЕ НА ВАШУ РЕАЛЬНУЮ ССЫЛКУ для материалов
-const TRANSACTIONS_CSV_URL = 'https://docs.google.com/spreadsheets/d/138AarGc1IgO2AQwxQ4b2I62zqd-6re63VWZAh55TTn4/gviz/tq?tqx=out:csv&gid=224436106'; // ЗАМЕНИТЕ НА ВАШУ РЕАЛЬНУЮ ССЫЛКУ для транзакций
+const MATERIALS_CSV_URL = 'https://docs.google.com/sheets/d/138AarGc1IgO2AQwxQ4b2I62zqd-6re63VWZAh55TTn4/gviz/tq?tqx=out:csv&gid=0'; // ЗАМЕНИТЕ НА ВАШУ РЕАЛЬНУЮ ССЫЛКУ для материалов
+const TRANSACTIONS_CSV_URL = 'https://docs.google.com/sheets/d/138AarGc1IgO2AQwxQ4b2I62zqd-6re63VWZAh55TTn4/gviz/tq?tqx=out:csv&gid=224436106'; // ЗАМЕНИТЕ НА ВАШУ РЕАЛЬНУЮ ССЫЛКУ для транзакций
 
 
 // --- ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ДЛЯ ХРАНЕНИЯ ЗАГРУЖЕННЫХ ДАННЫХ ---
@@ -155,7 +155,7 @@ function exportToCsv(filename, data, headersMap) {
     // Используем Papa.unparse() для преобразования массива массивов в CSV-строку.
     const csvString = Papa.unparse(csvDataForUnparse, {
         quotes: true,  // Добавлять кавычки вокруг всех полей (хорошо для Excel, если есть запятые внутри текста)
-        delimiter: ',', // Используем запятую как разделитель
+        delimiter: ';', // Используем точку с запятой как разделитель для лучшей совместимости с русской версией Excel
         newline: '\r\n' // Стандартная новая строка для CSV (Windows-совместимая)
     });
 
@@ -196,6 +196,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Данные материалов сохраняются в глобальную переменную.
     globalMaterialsData = await loadCsvData(MATERIALS_CSV_URL); 
     if (globalMaterialsData) {
+        // При отображении таблицы материалов также используем уникализацию по "Названию"
+        // (если это соответствует вашей логике отображения)
         renderTable(globalMaterialsData, 'materials-table-container', materialHeaders, 'Название');
     } else {
         document.getElementById('materials-table-container').innerHTML = '<p class="error-message">Не удалось загрузить данные о материалах. Проверьте URL или настройки публикации.</p>';
@@ -228,6 +230,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 // Обработчик события для кнопки "Сохранить как Excel (CSV)".
 // Он активируется при нажатии на кнопку и вызывает функцию exportToCsv для обеих таблиц.
 document.getElementById('exportCsvButton').addEventListener('click', () => {
+    // --- Фильтрация данных материалов для экспорта по уникальному ID ---
+    // Создаем Set для отслеживания уже встреченных ID
+    const seenMaterialIDs = new Set();
+    const uniqueMaterialsData = globalMaterialsData.filter(row => {
+        // Проверяем, что ID существует и еще не был добавлен
+        if (row['ID'] !== null && row['ID'] !== undefined && !seenMaterialIDs.has(row['ID'])) {
+            seenMaterialIDs.add(row['ID']);
+            return true; // Включаем эту строку, так как ID уникален
+        }
+        return false; // Исключаем строку, если ID пустой или уже встречен
+    });
+
     // Заголовки для таблицы "Материалы" при экспорте.
     // 'key' должен ТОЧНО совпадать с названием столбца в вашей Google Таблице.
     // 'label' - это название столбца, которое будет отображаться в Excel.
@@ -239,9 +253,11 @@ document.getElementById('exportCsvButton').addEventListener('click', () => {
         { key: 'Остаток', label: 'Количество' },
         { key: 'Оповещение', label: 'Оповещение' }
     ];
-    exportToCsv('материалы.csv', globalMaterialsData, materialHeadersForExport);
+    // Экспортируем ОТФИЛЬТРОВАННЫЕ данные материалов (только уникальные по ID)
+    exportToCsv('материалы.csv', uniqueMaterialsData, materialHeadersForExport);
 
     // Заголовки для таблицы "Транзакции" при экспорте.
+    // Транзакции обычно не уникальны по ID, поэтому экспортируем все транзакции.
     const transactionHeadersForExport = [
         { key: 'Дата', label: 'Дата' },
         { key: 'Сотрудник', label: 'Сотрудник' },
