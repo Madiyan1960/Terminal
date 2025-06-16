@@ -75,7 +75,7 @@ th, td {
     /* Если вы хотите, чтобы текст, несмотря на nowrap, все же разрывался в любом месте слова: */
     /* word-break: break-all; */ 
     /* Или, если вы хотите, чтобы текст переносился на новую строку: */
-    /* white-space: normal; */
+    white-space: normal;
     /* word-break: break-word; */
 }
 
