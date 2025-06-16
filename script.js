@@ -266,7 +266,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const loadedMaterials = await loadGoogleSheetData(MATERIALS_URL);
     if (loadedMaterials) {
         materialsData = loadedMaterials;
-        renderTable(materialsData, 'materials-table-container', materialHeaders, 'Название', 'materials-table');
+        renderTable(materialsData, 'materials-table-container', materialHeaders, 'Материал', 'materials-table');
     } else {
         const container = document.getElementById('materials-table-container');
         if (container) container.innerHTML = '<p class="error-message">Не удалось загрузить данные о материалах. Проверьте URL или настройки публикации.</p>';
