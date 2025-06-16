@@ -326,7 +326,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         { key: 'Тип', label: 'Тип' },
         { key: 'Кол-во', label: 'Кол-во' },
         { key: 'Комментарий', label: 'Комментарий' },
-        { key: 'Текущий остаток', label: 'Текущий остаток' },
+        { key: 'Текущий остаток', label: 'Текущий остаток' }
     ];
     const loadedTransactions = await loadGoogleSheetData(TRANSACTIONS_URL);
     if (loadedTransactions) {
