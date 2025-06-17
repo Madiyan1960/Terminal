@@ -53,6 +53,37 @@ button:hover {
     margin-bottom: 40px;
 }
 
+/* СТИЛИ ДЛЯ ЭЛЕМЕНТОВ УПРАВЛЕНИЯ ТРАНЗАКЦИЯМИ */
+.transaction-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+    justify-content: flex-end; /* Выравнивание по правому краю */
+}
+
+.transaction-controls label {
+    font-size: 16px;
+    color: #333333;
+    font-weight: 500;
+}
+
+.transaction-controls select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+    background-color: white;
+    cursor: pointer;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.transaction-controls select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+}
+
 /* ОБЩИЕ СТИЛИ ДЛЯ ВСЕХ ТАБЛИЦ */
 table {
     width: 100%;
@@ -60,7 +91,7 @@ table {
     margin-top: 20px;
     background-color: #fff;
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    table-layout: fixed; */ /* Оставил закомментированным по вашему желанию для автоширины */
+    /* table-layout: fixed; */ /* Оставил закомментированным по вашему желанию для автоширины */
 }
 
 /* СТИЛИ ДЛЯ ЗАГОЛОВКОВ ТАБЛИЦ И ЯЧЕЕК ДАННЫХ */
@@ -79,7 +110,6 @@ th, td {
     /* word-break: break-word; */
 }
 
-/* СТИЛИ ДЛЯ ЗАГОЛОВКОВ СТОЛБЦОВ ТАБЛИЦЫ */
 /* СТИЛИ ДЛЯ ЗАГОЛОВКОВ СТОЛБЦОВ ТАБЛИЦЫ */
 th {
     background-color: #f2f2f2;
@@ -104,6 +134,17 @@ tr:hover {
     font-style: italic;
     color: #777;
     margin-top: 15px;
+}
+
+/* СТИЛИ ДЛЯ СООБЩЕНИЙ ОБ ОШИБКАХ */
+.error-message {
+    color: #cc0000;
+    background-color: #ffe6e6;
+    border: 1px solid #cc0000;
+    padding: 10px;
+    border-radius: 4px;
+    text-align: center;
+    margin: 10px 0;
 }
 
 /* СТИЛИ ДЛЯ ГОРИЗОНТАЛЬНОЙ ЛИНИИ (разделителя) */
@@ -133,11 +174,10 @@ hr {
 .materials-table th:nth-child(3) { width: 10%; }  /* Ед. изм. */
 .materials-table th:nth-child(4) { width: 10%; } /* Мин. остаток */
 .materials-table th:nth-child(5) { width: 10%; } /* Кол-во на складе */
-.materials-table th:nth-child(7) { width: 10%; } /* Остаток */
-.materials-table th:nth-child(8) { width: 10%; } /* Оповещение */
+.materials-table th:nth-child(6) { width: 10%; } /* Остаток */
+.materials-table th:nth-child(7) { width: 10%; } /* Оповещение */
 
 /* Таблица "Остатки" (class="balances-table") */
-/* Этот блок есть в CSS, но таблица удалена из HTML. Оставил для полноты. */
 .balances-table th:nth-child(1) { width: 5%; } /* ID */
 .balances-table th:nth-child(2) { width: 35%; } /* Материал */
 .balances-table th:nth-child(3) { width: 10%; } /* Наличие (принято по акту ед.) */
@@ -166,6 +206,9 @@ hr {
     .controls {
         display: none;
     }
+    .transaction-controls {
+        display: none;
+    }
     h1 {
         display: none;
     }
@@ -188,17 +231,7 @@ hr {
     .loading {
         display: none;
     }
-
-    /* ОПЦИОНАЛЬНО: Если нужна другая ширина столбцов специально для печати,
-       можно переопределить их здесь. В противном случае, унаследуют стили выше. */
-    /*
-    .materials-table th:nth-child(1) { width: 6%; } 
-    */
 }
-/* style.css */
-
-/* ... (весь ваш существующий CSS выше) ... */
-
 
 /* - АДАПТИВНЫЕ СТИЛИ ДЛЯ МОБИЛЬНЫХ УСТРОЙСТВ - */
 
@@ -221,7 +254,20 @@ hr {
     button {
         width: 100%; /* Каждая кнопка занимает всю ширину контейнера */
         padding: 15px 10px; /* Увеличиваем вертикальный паддинг для удобства нажатия */
-        font-size: 10px; /* Немного уменьшаем шрифт, если нужно */
+        font-size: 16px; /* Немного уменьшаем шрифт, если нужно */
+    }
+
+    /* Адаптация элементов управления транзакциями для мобильных */
+    .transaction-controls {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        justify-content: flex-start;
+    }
+
+    .transaction-controls select {
+        width: 100%;
+        max-width: 200px;
     }
 
     /* Уменьшаем шрифты заголовков на мобильных, если они слишком большие */
@@ -243,10 +289,8 @@ hr {
 
     table {
         min-width: 600px; /* Минимальная ширина таблицы, чтобы она не сжималась слишком сильно */
-        /* Если min-width не помогает, и вы хотите, чтобы текст переносился, а не скрывался */
-        /* white-space: normal; */
-        /* word-break: break-word; */
     }
+    
     /* Если вы решили сделать текст переносимым, удалите 'nowrap' и 'ellipsis' из общих стилей th, td */
     th, td {
         white-space: normal; /* Разрешаем перенос текста */
@@ -271,4 +315,14 @@ hr {
     h2 {
         font-size: 18px;
     }
+    
+    .transaction-controls label {
+        font-size: 14px;
+    }
+    
+    .transaction-controls select {
+        font-size: 14px;
+        padding: 6px 10px;
+    }
 }
+
