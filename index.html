@@ -17,6 +17,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <!-- Библиотека для графиков -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
    
 </head>
 <body>
@@ -25,7 +28,7 @@
 
         <div class="controls">
     <button id="exportExcelButton">Экспорт в Excel</button>
-   
+    <button id="printPdfButton">Сохранить в PDF</button>
 </div>
 
         <div class="data-section">
@@ -33,6 +36,16 @@
             <p id="materials-loading" class="loading">Загрузка материалов...</p>
             <div id="materials-table-container">
                 <table class="materials-table"></table> 
+            </div>
+        </div>
+
+        <!-- Новая секция с графиком -->
+        <hr>
+        <div class="data-section">
+            <h2>Анализ движения материалов</h2>
+            <p id="chart-loading" class="loading">Загрузка данных для анализа...</p>
+            <div id="chart-container" style="display: none;">
+                <canvas id="movementChart" width="400" height="200"></canvas>
             </div>
         </div>
 
