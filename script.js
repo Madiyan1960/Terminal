@@ -257,6 +257,106 @@ function exportToCsv(data, filename, headersMap) {
     }
 }
 
+// --- Функция: Экспорт всех таблиц в один Excel файл с несколькими листами ---
+function exportToExcelMultipleSheets() {
+    // Проверяем наличие данных
+    if (!materialsData.length && !balancesData.length && !transactionsData.length) {
+        alert('Нет данных для экспорта');
+        return;
+    }
+
+    // Создаем новую рабочую книгу
+    const workbook = XLSX.utils.book_new();
+
+    // Лист 1: Материалы
+    if (materialsData.length > 0) {
+        const materialHeaders = [
+            { key: 'ID', label: 'ID' },
+            { key: 'Материал', label: 'Материал' },
+            { key: 'Ед.изм.', label: 'Ед.изм.' },
+            { key: 'Кол-во на складе', label: 'Кол-во на складе' },
+            { key: 'Остаток', label: 'Остаток' },
+            { key: 'Оповещение', label: 'Оповещение' }
+        ];
+        
+        // Преобразуем данные в формат для XLSX
+        const materialsForExport = materialsData.map(row => {
+            const exportRow = {};
+            materialHeaders.forEach(header => {
+                exportRow[header.label] = row[header.key] || '';
+            });
+            return exportRow;
+        });
+
+        const materialsWorksheet = XLSX.utils.json_to_sheet(materialsForExport);
+        XLSX.utils.book_append_sheet(workbook, materialsWorksheet, 'Материалы');
+    }
+
+    // Лист 2: Движение материалов
+    if (balancesData.length > 0) {
+        const balancesHeaders = [
+            { key: 'ID', label: 'ID' },
+            { key: 'Материал', label: 'Материал' },
+            { key: 'Наличие (принято по акту ед.)', label: 'Кол-во на складе' },
+            { key: 'Приход', label: 'Приход' },
+            { key: 'Расход', label: 'Расход' },
+            { key: 'Списание', label: 'Списание' },
+            { key: 'Возврат', label: 'Возврат' },
+            { key: 'Остаток', label: 'Остаток' }
+        ];
+
+        const balancesForExport = balancesData.map(row => {
+            const exportRow = {};
+            balancesHeaders.forEach(header => {
+                exportRow[header.label] = row[header.key] || '';
+            });
+            return exportRow;
+        });
+
+        const balancesWorksheet = XLSX.utils.json_to_sheet(balancesForExport);
+        XLSX.utils.book_append_sheet(workbook, balancesWorksheet, 'Движение материалов');
+    }
+
+    // Лист 3: Транзакции (с учетом фильтра)
+    if (transactionsData.length > 0) {
+        const transactionHeaders = [
+            { key: 'Дата', label: 'Дата' },
+            { key: 'Сотрудник', label: 'Сотрудник' },
+            { key: 'Поставщик', label: 'Поставщик' },
+            { key: 'Материал', label: 'Материал' },
+            { key: 'Тип', label: 'Тип' },
+            { key: 'Кол-во', label: 'Кол-во' },
+            { key: 'Комментарий', label: 'Комментарий' },
+            { key: 'Текущий остаток', label: 'Текущий остаток' }
+        ];
+
+        // Получаем текущий лимит для транзакций
+        const transactionLimitSelect = document.getElementById('transaction-limit');
+        const currentLimit = transactionLimitSelect ? (transactionLimitSelect.value === 'all' ? 'all' : parseInt(transactionLimitSelect.value)) : 10;
+        
+        let dataToExport = [...transactionsData];
+        if (currentLimit !== 'all' && typeof currentLimit === 'number' && dataToExport.length > currentLimit) {
+            dataToExport = dataToExport.slice(-currentLimit);
+        }
+
+        const transactionsForExport = dataToExport.map(row => {
+            const exportRow = {};
+            transactionHeaders.forEach(header => {
+                exportRow[header.label] = row[header.key] || '';
+            });
+            return exportRow;
+        });
+
+        const transactionsWorksheet = XLSX.utils.json_to_sheet(transactionsForExport);
+        XLSX.utils.book_append_sheet(workbook, transactionsWorksheet, 'Транзакции');
+    }
+
+    // Сохраняем файл
+    const currentDate = new Date().toLocaleDateString('ru-RU').replace(/\./g, '-');
+    const filename = `warehouse_report_${currentDate}.xlsx`;
+    XLSX.writeFile(workbook, filename);
+}
+
 // --- Загрузка и отображение данных при загрузке страницы (ЕДИНСТВЕННЫЙ DOMContentLoaded) ---
 document.addEventListener('DOMContentLoaded', async () => {
     // - Загружаем материалы -
@@ -363,17 +463,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // --- Обработчики кнопок ---
     const exportExcelButton = document.getElementById('exportExcelButton');
     if (exportExcelButton) {
-        exportExcelButton.addEventListener('click', () => {
-            // Экспортируем только отображаемые транзакции
-            const transactionLimitSelect = document.getElementById('transaction-limit');
-            const currentLimit = transactionLimitSelect ? (transactionLimitSelect.value === 'all' ? 'all' : parseInt(transactionLimitSelect.value)) : 10;
-            
-            let dataToExport = [...transactionsData];
-            if (currentLimit !== 'all' && typeof currentLimit === 'number' && dataToExport.length > currentLimit) {
-                dataToExport = dataToExport.slice(-currentLimit);
-            }
-            exportToCsv(dataToExport, 'transactions_export', transactionHeaders);
-        });
+        exportExcelButton.addEventListener('click', exportToExcelMultipleSheets);
     }
 
     const printPdfButton = document.getElementById('printPdfButton');
@@ -391,25 +481,38 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (transactionControls) transactionControls.style.display = 'none';
 
             try {
-                const canvas = await html2canvas(element, { scale: 2 }); // Увеличиваем масштаб для лучшего качества
+                // Увеличиваем масштаб и улучшаем качество
+                const canvas = await html2canvas(element, { 
+                    scale: 1.5, // Увеличиваем масштаб для лучшего качества
+                    useCORS: true,
+                    allowTaint: true,
+                    scrollX: 0,
+                    scrollY: 0,
+                    width: element.scrollWidth,
+                    height: element.scrollHeight
+                });
+                
                 const imgData = canvas.toDataURL('image/png');
-                const imgWidth = 595; // A4 width in pt
-                const pageHeight = 842; // A4 height in pt
+                const imgWidth = 595 - 2 * margin; // A4 width in pt minus margins
+                const pageHeight = 842 - 2 * margin; // A4 height in pt minus margins
                 const imgHeight = canvas.height * imgWidth / canvas.width;
                 let heightLeft = imgHeight;
                 let position = 0;
 
-                doc.addImage(imgData, 'PNG', margin, position + margin, imgWidth - 2 * margin, imgHeight);
+                // Добавляем первую страницу
+                doc.addImage(imgData, 'PNG', margin, margin + position, imgWidth, imgHeight);
                 heightLeft -= pageHeight;
 
+                // Добавляем дополнительные страницы при необходимости
                 while (heightLeft >= 0) {
                     position = heightLeft - imgHeight;
                     doc.addPage();
-                    doc.addImage(imgData, 'PNG', margin, position + margin, imgWidth - 2 * margin, imgHeight);
+                    doc.addImage(imgData, 'PNG', margin, margin + position, imgWidth, imgHeight);
                     heightLeft -= pageHeight;
                 }
 
-                doc.save('warehouse_report.pdf');
+                const currentDate = new Date().toLocaleDateString('ru-RU').replace(/\./g, '-');
+                doc.save(`warehouse_report_${currentDate}.pdf`);
             } catch (error) {
                 console.error('Ошибка при создании PDF:', error);
                 alert('Не удалось создать PDF. Пожалуйста, попробуйте еще раз.');
