@@ -152,7 +152,7 @@ hr {
     border: 0;
     height: 1px;
     background: #eee;
-    margin: 0px 0;
+    margin: -20px 0;
 }
 
 /* СТИЛИ ДЛЯ PDF (скрытие элементов, которые не должны быть в PDF) */
