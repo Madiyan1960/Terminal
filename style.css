@@ -3,7 +3,7 @@
 /* ОБЩИЕ СТИЛИ ДЛЯ ВСЕЙ СТРАНИЦЫ */
 body {
     font-family: Arial, sans-serif;
-    margin: 10px;
+    margin: 20px;
     background-color: #f4f7f6;
     color: #333;
     line-height: 1.6;
@@ -152,7 +152,7 @@ hr {
     border: 0;
     height: 1px;
     background: #eee;
-    margin: -20px 0;
+    margin: 40px 0;
 }
 
 /* СТИЛИ ДЛЯ PDF (скрытие элементов, которые не должны быть в PDF) */
@@ -214,8 +214,8 @@ hr {
     }
     .data-section h2 {
         text-align: left;
-        margin-top: 10px;
-        margin-bottom: 5px;
+        margin-top: 20px;
+        margin-bottom: 10px;
     }
     table {
         font-size: 10px; /* Уменьшаем шрифт для печати */
@@ -248,7 +248,7 @@ hr {
         flex-direction: column; /* Располагаем кнопки в столбец на мобильных */
         gap: 15px; /* Добавляем промежуток между кнопками */
         align-items: stretch; /* Растягиваем кнопки на всю доступную ширину */
-        margin-bottom: 10px;
+        margin-bottom: 20px;
     }
 
     button {
@@ -273,11 +273,11 @@ hr {
     /* Уменьшаем шрифты заголовков на мобильных, если они слишком большие */
     h1 {
         font-size: 24px;
-        margin-bottom: 10px;
+        margin-bottom: 15px;
     }
     h2 {
         font-size: 20px;
-        margin-bottom: 5px;
+        margin-bottom: 10px;
     }
 
     /* Адаптация таблиц для мобильных */
@@ -323,6 +323,43 @@ hr {
     .transaction-controls select {
         font-size: 14px;
         padding: 6px 10px;
+    }
+}
+
+
+/* СТИЛИ ДЛЯ ГРАФИКА */
+#chart-container {
+    margin: 20px 0;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+#movementChart {
+    max-height: 400px;
+    width: 100% !important;
+    height: 400px !important;
+}
+
+/* Адаптивность для графика на мобильных устройствах */
+@media (max-width: 768px) {
+    #chart-container {
+        padding: 15px;
+        margin: 15px 0;
+    }
+    
+    #movementChart {
+        max-height: 300px;
+        height: 300px !important;
+    }
+}
+
+/* Скрытие графика при печати PDF */
+@media print {
+    #chart-container {
+        page-break-inside: avoid;
+        margin: 10px 0;
     }
 }
 
