@@ -46,6 +46,17 @@
 
         <div class="data-section">
             <h2>Последние транзакции</h2>
+            <div class="transaction-controls">
+                <label for="transaction-limit">Показать:</label>
+                <select id="transaction-limit">
+                    <option value="5">5 записей</option>
+                    <option value="10" selected>10 записей</option>
+                    <option value="20">20 записей</option>
+                    <option value="50">50 записей</option>
+                    <option value="100">100 записей</option>
+                    <option value="all">Все записи</option>
+                </select>
+            </div>
             <p id="transactions-loading" class="loading">Загрузка транзакций...</p>
             <div id="transactions-table-container">
                 <table class="transactions-table"></table>
@@ -57,3 +68,4 @@
     <script src="script.js"></script>
 </body>
 </html>
+
