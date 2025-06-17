@@ -12,7 +12,7 @@ const TRANSACTIONS_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_I
 // Объявляем переменные для хранения данных таблиц в глобальной области видимости
 let materialsData = [];
 let balancesData = [];
-let transactionsData = [];
+let transactionsData = []; // Будет хранить все загруженные транзакции
 
 // --- НОВАЯ ФУНКЦИЯ: Парсинг JSON-ответа от Google Sheets ---
 // Google Sheets API возвращает JSON, обернутый в функцию "google.visualization.Query.setResponse(...);"
@@ -141,7 +141,8 @@ async function loadGoogleSheetData(url) {
 }
 
 // --- Функция для отображения данных в таблице ---
-function renderTable(data, containerId, headersMap, uniqueByKey = null, tableClass = null) {
+// Добавлен параметр `limit` для ограничения количества отображаемых записей
+function renderTable(data, containerId, headersMap, uniqueByKey = null, tableClass = null, limit = 'all') {
     const container = document.getElementById(containerId);
     if (!container) {
         console.error(`Контейнер с ID "${containerId}" не найден.`);
@@ -149,7 +150,7 @@ function renderTable(data, containerId, headersMap, uniqueByKey = null, tableCla
     }
 
     const loadingMessage = container.previousElementSibling;
-    if (loadingMessage) {
+    if (loadingMessage && loadingMessage.classList.contains('loading')) {
         loadingMessage.style.display = 'none';
     }
 
@@ -158,12 +159,12 @@ function renderTable(data, containerId, headersMap, uniqueByKey = null, tableCla
         return;
     }
 
-    let processedData = data;
+    let processedData = [...data]; // Создаем копию, чтобы не изменять исходные данные
 
     // Логика фильтрации для уникальных значений
     if (uniqueByKey && data.length > 0) {
         const seenKeys = new Set();
-        processedData = data.filter(row => {
+        processedData = processedData.filter(row => {
             const keyValue = row[uniqueByKey];
             if (keyValue === null || keyValue === undefined || keyValue === '' || seenKeys.has(keyValue)) {
                 return false;
@@ -178,6 +179,12 @@ function renderTable(data, containerId, headersMap, uniqueByKey = null, tableCla
             container.innerHTML = `<p>Нет уникальных данных по полю "${keyLabel}".</p>`;
             return;
         }
+    }
+
+    // Логика ограничения количества записей (для таблицы транзакций)
+    if (limit !== 'all' && typeof limit === 'number' && processedData.length > limit) {
+        // Берем последние N записей
+        processedData = processedData.slice(-limit);
     }
 
     const table = document.createElement('table');
@@ -330,8 +337,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     ];
     const loadedTransactions = await loadGoogleSheetData(TRANSACTIONS_URL);
     if (loadedTransactions) {
-        transactionsData = loadedTransactions;
-        renderTable(transactionsData, 'transactions-table-container', transactionHeaders, null, 'transactions-table');
+        transactionsData = loadedTransactions; // Сохраняем все транзакции
+        
+        // Получаем выбранный лимит из выпадающего списка или используем значение по умолчанию (10)
+        const transactionLimitSelect = document.getElementById('transaction-limit');
+        const currentLimit = transactionLimitSelect ? (transactionLimitSelect.value === 'all' ? 'all' : parseInt(transactionLimitSelect.value)) : 10;
+
+        renderTable(transactionsData, 'transactions-table-container', transactionHeaders, null, 'transactions-table', currentLimit);
+
+        // Добавляем обработчик события для изменения лимита
+        if (transactionLimitSelect) {
+            transactionLimitSelect.addEventListener('change', (event) => {
+                const newLimit = event.target.value === 'all' ? 'all' : parseInt(event.target.value);
+                renderTable(transactionsData, 'transactions-table-container', transactionHeaders, null, 'transactions-table', newLimit);
+            });
+        }
+
     } else {
         const container = document.getElementById('transactions-table-container');
         if (container) container.innerHTML = '<p class="error-message">Не удалось загрузить данные о транзакциях. Проверьте URL или настройки публикации.</p>';
@@ -343,68 +364,61 @@ document.addEventListener('DOMContentLoaded', async () => {
     const exportExcelButton = document.getElementById('exportExcelButton');
     if (exportExcelButton) {
         exportExcelButton.addEventListener('click', () => {
-            exportToCsv(materialsData, 'Материалы', materialHeaders);
-            exportToCsv(balancesData, 'ДвижениеМатериалов', balancesHeaders);
-            exportToCsv(transactionsData, 'Транзакции', transactionHeaders);
+            // Экспортируем только отображаемые транзакции
+            const transactionLimitSelect = document.getElementById('transaction-limit');
+            const currentLimit = transactionLimitSelect ? (transactionLimitSelect.value === 'all' ? 'all' : parseInt(transactionLimitSelect.value)) : 10;
+            
+            let dataToExport = [...transactionsData];
+            if (currentLimit !== 'all' && typeof currentLimit === 'number' && dataToExport.length > currentLimit) {
+                dataToExport = dataToExport.slice(-currentLimit);
+            }
+            exportToCsv(dataToExport, 'transactions_export', transactionHeaders);
         });
-    } else {
-        console.error('Кнопка "Экспорт в Excel" (id="exportExcelButton") не найдена. Убедитесь, что она есть в index.html.');
     }
 
     const printPdfButton = document.getElementById('printPdfButton');
     if (printPdfButton) {
         printPdfButton.addEventListener('click', async () => {
             const { jsPDF } = window.jspdf;
-            const doc = new jsPDF('p', 'mm', 'a4');
+            const doc = new jsPDF('p', 'pt', 'a4');
+            const margin = 20;
+            const element = document.querySelector('.container'); // Элемент, который нужно сохранить в PDF
 
-            const container = document.querySelector('.container');
-
-            // Скрываем элементы, которые не должны попасть в PDF
-            printPdfButton.classList.add('pdf-hidden');
-            const h1Element = document.querySelector('h1');
-            if (h1Element) h1Element.classList.add('pdf-hidden');
-            const controlsDiv = document.querySelector('.controls');
-            if (controlsDiv) controlsDiv.classList.add('pdf-hidden');
-
+            // Скрываем элементы управления перед созданием PDF
+            const controls = document.querySelector('.controls');
+            if (controls) controls.style.display = 'none';
+            const transactionControls = document.querySelector('.transaction-controls');
+            if (transactionControls) transactionControls.style.display = 'none';
 
             try {
-                const canvas = await html2canvas(container, {
-                    scale: 2,
-                    useCORS: true,
-                    logging: true
-                });
-
+                const canvas = await html2canvas(element, { scale: 2 }); // Увеличиваем масштаб для лучшего качества
                 const imgData = canvas.toDataURL('image/png');
-                const imgWidth = 210; // Ширина A4 в мм
-                const pageHeight = 297; // Высота A4 в мм
+                const imgWidth = 595; // A4 width in pt
+                const pageHeight = 842; // A4 height in pt
                 const imgHeight = canvas.height * imgWidth / canvas.width;
                 let heightLeft = imgHeight;
-
                 let position = 0;
 
-                doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                doc.addImage(imgData, 'PNG', margin, position + margin, imgWidth - 2 * margin, imgHeight);
                 heightLeft -= pageHeight;
 
                 while (heightLeft >= 0) {
                     position = heightLeft - imgHeight;
                     doc.addPage();
-                    doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                    doc.addImage(imgData, 'PNG', margin, position + margin, imgWidth - 2 * margin, imgHeight);
                     heightLeft -= pageHeight;
                 }
 
-                doc.save('Отчет_Склад.pdf');
-
+                doc.save('warehouse_report.pdf');
             } catch (error) {
-                console.error('Ошибка при генерации PDF:', error);
-                alert('Не удалось сгенерировать PDF. Проверьте консоль для подробностей.');
+                console.error('Ошибка при создании PDF:', error);
+                alert('Не удалось создать PDF. Пожалуйста, попробуйте еще раз.');
             } finally {
-                // Возвращаем видимость скрытым элементам в любом случае
-                printPdfButton.classList.remove('pdf-hidden');
-                if (h1Element) h1Element.classList.remove('pdf-hidden');
-                if (controlsDiv) controlsDiv.classList.remove('pdf-hidden');
+                // Возвращаем видимость элементов управления
+                if (controls) controls.style.display = 'flex'; // Предполагаем, что controls были flex
+                if (transactionControls) transactionControls.style.display = 'block'; // Предполагаем, что transaction-controls были block
             }
         });
-    } else {
-        console.error('Кнопка "Сохранить в PDF" (id="printPdfButton") не найдена. Убедитесь, что она есть в index.html.');
     }
 });
+
