@@ -320,7 +320,7 @@ function exportToExcelMultipleSheets() {
     // Лист 3: Транзакции (с учетом фильтра)
     if (transactionsData.length > 0) {
         const transactionHeaders = [
-            { key: 'Дата', label: 'Дата' },
+            { key: 'Столбец 1', label: 'Дата' },
             { key: 'Сотрудник', label: 'Сотрудник' },
             { key: 'Поставщик', label: 'Поставщик' },
             { key: 'Материал', label: 'Материал' },
@@ -426,7 +426,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // --- Загружаем транзакции ---
     // ЗАГОЛОВКИ ДОЛЖНЫ БЫТЬ ТОЧНО ТАКИМИ ЖЕ, КАК В ВАШИХ GOOGLE ТАБЛИЦАХ (в UTF-8)!
     const transactionHeaders = [
-        { key: 'Дата', label: 'Дата' },
+        { key: 'Столбец 1', label: 'Дата' },
         { key: 'Сотрудник', label: 'Сотрудник' },
         { key: 'Поставщик', label: 'Поставщик' },
         { key: 'Материал', label: 'Материал' },
