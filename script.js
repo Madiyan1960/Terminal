@@ -394,7 +394,7 @@ function exportToExcelMultipleSheets() {
         { key: 'Возврат', label: 'Возврат' },
         { key: 'Остаток', label: 'Остаток' }
     ];
-    const loadedBalances = await loadGoogleSheetData(BALANCES_URL);
+    //const loadedBalances = await loadGoogleSheetData(BALANCES_URL);
 
     if (loadedBalances) {
         let tempBalancesData = loadedBalances;
