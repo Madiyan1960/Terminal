@@ -358,7 +358,7 @@ function exportToExcelMultipleSheets() {
 }
 
 // --- Загрузка и отображение данных при загрузке страницы (ЕДИНСТВЕННЫЙ DOMContentLoaded) ---
-document.addEventListener('DOMContentLoaded', async () => {
+//document.addEventListener('DOMContentLoaded', async () => {
     // - Загружаем материалы -
     // ЗАГОЛОВКИ ДОЛЖНЫ БЫТЬ ТОЧНО ТАКИМИ ЖЕ, КАК В ВАШИХ GOOGLE ТАБЛИЦАХ (в UTF-8)!
    // const materialHeaders = [
