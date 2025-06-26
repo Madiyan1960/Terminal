@@ -269,15 +269,15 @@ function exportToExcelMultipleSheets() {
     const workbook = XLSX.utils.book_new();
 
     // Лист 1: Материалы
-    if (materialsData.length > 0) {
-        const materialHeaders = [
-            { key: 'ID', label: 'ID' },
-            { key: 'Материал', label: 'Материал' },
-            { key: 'Ед.изм.', label: 'Ед.изм.' },
-            { key: 'Наличие (принято по акту ед.)', label: 'Наличие (принято по акту ед.)' },
-            { key: 'Остаток', label: 'Остаток' },
-            { key: 'Оповещение', label: 'Оповещение' }
-        ];
+   // if (materialsData.length > 0) {
+      //  const materialHeaders = [
+         //   { key: 'ID', label: 'ID' },
+         //   { key: 'Материал', label: 'Материал' },
+         //   { key: 'Ед.изм.', label: 'Ед.изм.' },
+         //   { key: 'Наличие (принято по акту ед.)', label: 'Наличие (принято по акту ед.)' },
+         //   { key: 'Остаток', label: 'Остаток' },
+          //  { key: 'Оповещение', label: 'Оповещение' }
+       // ];
         
         // Преобразуем данные в формат для XLSX
         const materialsForExport = materialsData.map(row => {
@@ -361,25 +361,25 @@ function exportToExcelMultipleSheets() {
 document.addEventListener('DOMContentLoaded', async () => {
     // - Загружаем материалы -
     // ЗАГОЛОВКИ ДОЛЖНЫ БЫТЬ ТОЧНО ТАКИМИ ЖЕ, КАК В ВАШИХ GOOGLE ТАБЛИЦАХ (в UTF-8)!
-    const materialHeaders = [
-        { key: 'ID', label: 'ID' },
-        { key: 'Материал', label: 'Материал' }, // Убедитесь, что 'Название' - точное название столбца в Google Sheets
-        { key: 'Ед.изм.', label: 'Ед.изм.' },
-        // { key: 'Мин. остаток', label: 'Мин. остаток' }, // Если такого столбца нет, закомментируйте или удалите
-        { key: 'Кол-во на складе', label: 'Кол-во на складе' },
-        { key: 'Остаток', label: 'Остаток' },
-        { key: 'Оповещение', label: 'Оповещение' }
-    ];
-    const loadedMaterials = await loadGoogleSheetData(MATERIALS_URL);
-    if (loadedMaterials) {
-        materialsData = loadedMaterials;
-        renderTable(materialsData, 'materials-table-container', materialHeaders, 'Материал', 'materials-table');
-    } else {
-        const container = document.getElementById('materials-table-container');
-        if (container) container.innerHTML = '<p class="error-message">Не удалось загрузить данные о материалах. Проверьте URL или настройки публикации.</p>';
-        const loading = document.getElementById('materials-loading');
-        if (loading) loading.style.display = 'none';
-    }
+   // const materialHeaders = [
+      //  { key: 'ID', label: 'ID' },
+      //  { key: 'Материал', label: 'Материал' }, // Убедитесь, что 'Название' - точное название столбца в Google Sheets
+      //  { key: 'Ед.изм.', label: 'Ед.изм.' },
+     //   // { key: 'Мин. остаток', label: 'Мин. остаток' }, // Если такого столбца нет, закомментируйте или удалите
+     //   { key: 'Кол-во на складе', label: 'Кол-во на складе' },
+     //   { key: 'Остаток', label: 'Остаток' },
+     //   { key: 'Оповещение', label: 'Оповещение' }
+   // ];
+  //  const loadedMaterials = await loadGoogleSheetData(MATERIALS_URL);
+ //   if (loadedMaterials) {
+   //     materialsData = loadedMaterials;
+   //     renderTable(materialsData, 'materials-table-container', materialHeaders, 'Материал', 'materials-table');
+  //  } else {
+   //     const container = document.getElementById('materials-table-container');
+    //    if (container) container.innerHTML = '<p class="error-message">Не удалось загрузить данные о материалах. Проверьте URL или настройки публикации.</p>';
+    //    const loading = document.getElementById('materials-loading');
+    //    if (loading) loading.style.display = 'none';
+   // }
 
     // - Загружаем Движение материалов (Остатки) -
     // ЗАГОЛОВКИ ДОЛЖНЫ БЫТЬ ТОЧНО ТАКИМИ ЖЕ, КАК В ВАШИХ GOOGLE ТАБЛИЦАХ (в UTF-8)!
