@@ -403,7 +403,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         tempBalancesData = tempBalancesData.filter(row => {
             const quantity = row[quantityKey];
             // Убедитесь, что Остаток - это число и больше 0
-            return typeof quantity === 'number' && !isNaN(quantity) && quantity > 0;
+            //return typeof quantity === 'number' && !isNaN(quantity) && quantity > 0;
+            return typeof quantity === 'number' && !isNaN(quantity);
         });
 
         balancesData = tempBalancesData;
