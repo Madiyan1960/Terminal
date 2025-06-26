@@ -355,7 +355,7 @@ function exportToExcelMultipleSheets() {
     const currentDate = new Date().toLocaleDateString('ru-RU').replace(/\./g, '-');
     const filename = `warehouse_report_${currentDate}.xlsx`;
     XLSX.writeFile(workbook, filename);
-}
+//}
 
 // --- Загрузка и отображение данных при загрузке страницы (ЕДИНСТВЕННЫЙ DOMContentLoaded) ---
 //document.addEventListener('DOMContentLoaded', async () => {
