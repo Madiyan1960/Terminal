@@ -269,28 +269,28 @@ function exportToExcelMultipleSheets() {
     const workbook = XLSX.utils.book_new();
 
     // Лист 1: Материалы
-    if (materialsData.length > 0) {
-        const materialHeaders = [
-            { key: 'ID', label: 'ID' },
-            { key: 'Материал', label: 'Материал' },
-            { key: 'Ед.изм.', label: 'Ед.изм.' },
-            { key: 'Кол-во на складе', label: 'Кол-во на складе' },
-            { key: 'Остаток', label: 'Остаток' },
-            { key: 'Оповещение', label: 'Оповещение' }
-        ];
+   // if (materialsData.length > 0) {
+       // const materialHeaders = [
+          //  { key: 'ID', label: 'ID' },
+          //  { key: 'Материал', label: 'Материал' },
+          //  { key: 'Ед.изм.', label: 'Ед.изм.' },
+          //  { key: 'Кол-во на складе', label: 'Кол-во на складе' },
+          //  { key: 'Остаток', label: 'Остаток' },
+          //  { key: 'Оповещение', label: 'Оповещение' }
+       // ];
         
         // Преобразуем данные в формат для XLSX
-        const materialsForExport = materialsData.map(row => {
-            const exportRow = {};
-            materialHeaders.forEach(header => {
-                exportRow[header.label] = row[header.key] || '';
-            });
-            return exportRow;
-        });
+      //  const materialsForExport = materialsData.map(row => {
+        //    const exportRow = {};
+         //   materialHeaders.forEach(header => {
+            //    exportRow[header.label] = row[header.key] || '';
+          //  });
+         //   return exportRow;
+       // });
 
-        const materialsWorksheet = XLSX.utils.json_to_sheet(materialsForExport);
-        XLSX.utils.book_append_sheet(workbook, materialsWorksheet, 'Материалы');
-    }
+      //  const materialsWorksheet = XLSX.utils.json_to_sheet(materialsForExport);
+      //  XLSX.utils.book_append_sheet(workbook, materialsWorksheet, 'Материалы');
+  //  }
 
     // Лист 2: Движение материалов
     if (balancesData.length > 0) {
