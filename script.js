@@ -5,7 +5,7 @@ const SPREADSHEET_ID = '138AarGc1IgO2AQwxQ4b2I62zqd-6re63VWZAh55TTn4';
 
 // URL-ы для получения данных из Google Таблиц в формате JSON
 // Используем Google Visualization API для обхода CORS и получения UTF-8 кодировки
-const MATERIALS_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&gid=0`;
+//const MATERIALS_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&gid=0`;
 const BALANCES_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&gid=1133040566`;
 const TRANSACTIONS_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&gid=224436106`;
 
@@ -274,7 +274,7 @@ function exportToExcelMultipleSheets() {
             { key: 'ID', label: 'ID' },
             { key: 'Материал', label: 'Материал' },
             { key: 'Ед.изм.', label: 'Ед.изм.' },
-            { key: 'Кол-во на складе', label: 'Кол-во на складе' },
+            { key: 'Наличие (принято по акту ед.)', label: 'Наличие (принято по акту ед.)' },
             { key: 'Остаток', label: 'Остаток' },
             { key: 'Оповещение', label: 'Оповещение' }
         ];
@@ -297,7 +297,7 @@ function exportToExcelMultipleSheets() {
         const balancesHeaders = [
             { key: 'ID', label: 'ID' },
             { key: 'Материал', label: 'Материал' },
-            { key: 'Наличие (принято по акту ед.)', label: 'Кол-во на складе' },
+            { key: 'Наличие (принято по акту ед.)', label: 'Наличие (принято по акту ед.)' },
             { key: 'Приход', label: 'Приход' },
             { key: 'Расход', label: 'Расход' },
             { key: 'Списание', label: 'Списание' },
