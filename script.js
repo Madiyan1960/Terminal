@@ -296,7 +296,7 @@ function exportToExcelMultipleSheets() {
         const balancesHeaders = [
             { key: 'ID', label: 'ID' },
             { key: 'Материал', label: 'Материал' },
-            { key: 'Наличие (принято по акту ед.)', label: 'Кол-во на складе' },
+            { key: 'Начальный остаток', label: 'Начальный остаток' },
             { key: 'Приход', label: 'Приход' },
             { key: 'Расход', label: 'Расход' },
             { key: 'Списание', label: 'Списание' },
