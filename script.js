@@ -142,12 +142,12 @@ async function loadGoogleSheetData(url) {
 
 // --- Функция для отображения данных в таблице ---
 // Добавлен параметр `limit` для ограничения количества отображаемых записей
-function renderTable(data, containerId, headersMap, uniqueByKey = null, tableClass = null, limit = 'all') {
-    const container = document.getElementById(containerId);
-    if (!container) {
-        console.error(`Контейнер с ID "${containerId}" не найден.`);
-        return;
-    }
+//function renderTable(data, containerId, headersMap, uniqueByKey = null, tableClass = null, limit = 'all') {
+   // const container = document.getElementById(containerId);
+   // if (!container) {
+      //  console.error(`Контейнер с ID "${containerId}" не найден.`);
+      //  return;
+   // }
 
     const loadingMessage = container.previousElementSibling;
     if (loadingMessage && loadingMessage.classList.contains('loading')) {
@@ -373,16 +373,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         { key: 'Не рабочее', label: 'Не рабочее' }
         //{ key: 'Оповещение', label: 'Оповещение' }
     ];
-    const loadedMaterials = await loadGoogleSheetData(MATERIALS_URL);
-    if (loadedMaterials) {
-        materialsData = loadedMaterials;
-        renderTable(materialsData, 'materials-table-container', materialHeaders, 'Материал', 'materials-table');
-    } else {
-        const container = document.getElementById('materials-table-container');
-        if (container) container.innerHTML = '<p class="error-message">Не удалось загрузить данные о материалах. Проверьте URL или настройки публикации.</p>';
-        const loading = document.getElementById('materials-loading');
-        if (loading) loading.style.display = 'none';
-    }
+    //const loadedMaterials = await loadGoogleSheetData(MATERIALS_URL);
+   // if (loadedMaterials) {
+     //   materialsData = loadedMaterials;
+       // renderTable(materialsData, 'materials-table-container', materialHeaders, 'Материал', 'materials-table');
+   // } else {
+       // const container = document.getElementById('materials-table-container');
+      //  if (container) container.innerHTML = '<p class="error-message">Не удалось загрузить данные о материалах. Проверьте URL или настройки публикации.</p>';
+       // const loading = document.getElementById('materials-loading');
+       // if (loading) loading.style.display = 'none';
+   // }
 
     // - Загружаем Движение материалов (Остатки) -
     // ЗАГОЛОВКИ ДОЛЖНЫ БЫТЬ ТОЧНО ТАКИМИ ЖЕ, КАК В ВАШИХ GOOGLE ТАБЛИЦАХ (в UTF-8)!
