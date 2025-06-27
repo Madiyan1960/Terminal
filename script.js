@@ -156,7 +156,7 @@ async function loadGoogleSheetData(url) {
 
     if (!data || data.length === 0) {
         container.innerHTML = '<p>Данные отсутствуют.</p>';
-        return;
+       // return;
     }
 
     let processedData = [...data]; // Создаем копию, чтобы не изменять исходные данные
