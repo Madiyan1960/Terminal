@@ -272,7 +272,7 @@ function exportToExcelMultipleSheets() {
         const materialHeaders = [
             { key: 'ID', label: 'ID' },
             { key: 'Материал', label: 'Материал' },
-            { key: 'Ед.изм.', label: 'Ед.изм.' },
+            //{ key: 'Ед.изм.', label: 'Ед.изм.' },
             { key: 'Начальный остаток', label: 'Начальный остаток' },
             //{ key: 'Рабочее', label: 'Рабочее' },
             //{ key: 'Не рабочее', label: 'Не рабочее' }
@@ -363,7 +363,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const materialHeaders = [
         { key: 'ID', label: 'ID' },
         { key: 'Материал', label: 'Материал' }, // Убедитесь, что 'Название' - точное название столбца в Google Sheets
-        { key: 'Ед.изм.', label: 'Ед.изм.' },
+        //{ key: 'Ед.изм.', label: 'Ед.изм.' },
         { key: 'Начальный остаток', label: 'Начальный остаток' }, // Если такого столбца нет, закомментируйте или удалите
         //{ key: 'Рабочее', label: 'Рабочее' },
        // { key: 'Не рабочее', label: 'Не рабочее' },
