@@ -1,5 +1,4 @@
 // script.js
-
 // Вставьте сюда ID вашей Google Таблицы
 const SPREADSHEET_ID = '138AarGc1IgO2AQwxQ4b2I62zqd-6re63VWZAh55TTn4';
 
