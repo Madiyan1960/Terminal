@@ -8,30 +8,34 @@
     <link rel="manifest" href="/Terminal/manifest.json">
     <link rel="apple-touch-icon" href="/Terminal/icons/icon-192x192.png">
     
- <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="apple-mobile-web-app-title" content="ТКО Склад">
     <link rel="apple-touch-icon" href="/Terminal/icons/icon-192x192.png">
     
-    <!-- Библиотеки для экспорта -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-   
+    
 </head>
 <body>
     <div class="container">
         <h1>Визуальный контроль склада</h1>
 
         <div class="controls">
-    <button id="exportExcelButton">Экспорт в Excel</button>
-   
-</div>
-
-      
+            <button id="exportExcelButton">Экспорт в Excel</button>
+            <button id="printPdfButton">Печать в PDF</button>
         </div>
-
+        
         <hr>
+        <div class="data-section">
+            <h2>Материалы на складе</h2>
+            <p id="materials-loading" class="loading">Загрузка материалов...</p>
+            <div id="materials-table-container">
+                </div>
+        </div>
+        <hr>
+
         <div class="data-section">
             <h2>Движение материалов</h2>
             <p id="balances-loading" class="loading">Загрузка остатков...</p>
@@ -64,4 +68,3 @@
     <script src="script.js"></script>
 </body>
 </html>
-
