@@ -398,7 +398,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (loadedBalances) {
         let tempBalancesData = loadedBalances;
 
-        const quantityKey = 'Остаток';
+        const quantityKey = 'Сейчас на складе';
         tempBalancesData = tempBalancesData.filter(row => {
             const quantity = row[quantityKey];
             // Убедитесь, что Остаток - это число и больше 0
