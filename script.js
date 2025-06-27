@@ -301,7 +301,7 @@ function exportToExcelMultipleSheets() {
             { key: 'Расход', label: 'Расход' },
             { key: 'Списание', label: 'Списание' },
             { key: 'Возврат', label: 'Возврат' },
-            { key: 'Остаток', label: 'Остаток' }
+            { key: 'Сейчас на складе', label: 'Сейчас на складе' }
         ];
 
         const balancesForExport = balancesData.map(row => {
