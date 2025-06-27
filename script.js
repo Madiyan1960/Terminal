@@ -325,7 +325,7 @@ function exportToExcelMultipleSheets() {
             { key: 'Материал', label: 'Материал' },
             { key: 'Тип', label: 'Тип' },
             { key: 'Статус', label: 'Статус' },
-            { key: 'Комментарий', label: 'Комментарий' },
+            { key: 'Кол-во', label: 'Кол-во' },
             { key: 'Текущий остаток', label: 'Текущий остаток' }
         ];
 
@@ -431,7 +431,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         { key: 'Материал', label: 'Материал' },
         { key: 'Тип', label: 'Тип' },
         { key: 'Статус', label: 'Статус' },
-        { key: 'Комментарий', label: 'Комментарий' },
+        { key: 'Кол-во', label: 'Количество' },
         { key: 'Текущий остаток', label: 'Текущий остаток' }
     ];
     const loadedTransactions = await loadGoogleSheetData(TRANSACTIONS_URL);
