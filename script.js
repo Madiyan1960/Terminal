@@ -319,12 +319,12 @@ function exportToExcelMultipleSheets() {
     // Лист 3: Транзакции (с учетом фильтра)
     if (transactionsData.length > 0) {
         const transactionHeaders = [
-            { key: 'Дата', label: 'Дата' },
+            { key: 'Столбец1', label: 'Дата' },
             { key: 'Сотрудник', label: 'Сотрудник' },
             { key: 'Поставщик', label: 'Поставщик' },
             { key: 'Материал', label: 'Материал' },
             { key: 'Тип', label: 'Тип' },
-            { key: 'Кол-во', label: 'Кол-во' },
+            { key: 'Статус', label: 'Статус' },
             { key: 'Комментарий', label: 'Комментарий' },
             { key: 'Текущий остаток', label: 'Текущий остаток' }
         ];
