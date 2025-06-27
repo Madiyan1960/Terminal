@@ -430,7 +430,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         { key: 'Поставщик', label: 'Поставщик' },
         { key: 'Материал', label: 'Материал' },
         { key: 'Тип', label: 'Тип' },
-        { key: 'Кол-во', label: 'Кол-во' },
+        { key: 'Статус', label: 'Статус' },
         { key: 'Комментарий', label: 'Комментарий' },
         { key: 'Текущий остаток', label: 'Текущий остаток' }
     ];
