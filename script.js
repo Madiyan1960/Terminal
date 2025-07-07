@@ -7,16 +7,11 @@ const SPREADSHEET_ID = '138AarGc1IgO2AQwxQ4b2I62zqd-6re63VWZAh55TTn4';
 const MATERIALS_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&gid=0`;
 const BALANCES_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&gid=1133040566`;
 const TRANSACTIONS_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&gid=224436106`;
-// --- ДОБАВЬТЕ ЭТУ СТРОКУ ДЛЯ ДОЛЖНИКОВ ---
-const DEBTORS_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&gid=891122551`;
-// Убедитесь, что вы заменили ВАШ_GID_ЛИСТА_ДОЛЖНИКИ на реальный GID вашего листа "Должники".
-// GID можно найти в URL Google Таблицы, когда вы открываете нужный лист (например, .../edit#gid=123456789)
 
 // Объявляем переменные для хранения данных таблиц в глобальной области видимости
 let materialsData = [];
 let balancesData = [];
 let transactionsData = []; // Будет хранить все загруженные транзакции
-let debtorsData = []; // --- ДОБАВЬТЕ ЭТУ СТРОКУ ДЛЯ ХРАНЕНИЯ ДАННЫХ ДОЛЖНИКОВ ---
 
 // --- НОВАЯ ФУНКЦИЯ: Парсинг JSON-ответа от Google Sheets ---
 // Google Sheets API возвращает JSON, обернутый в функцию "google.visualization.Query.setResponse(...);"
@@ -46,7 +41,7 @@ function parseGoogleSheetJSON(jsonText) {
                         value = cell.v;
                     }
                 }
-
+                
                 // Обработка специальных случаев для дат из поля 'v'
                 // Google Sheets API возвращает даты в формате [год, месяц(0-11), день, час, минута, секунда] в поле 'v'
                 if (Array.isArray(value) && value.length >= 3) { // Проверяем минимум на год, месяц, день
@@ -88,7 +83,7 @@ function parseGoogleSheetJSON(jsonText) {
                                 second: '2-digit'
                             });
                              if (value.endsWith(' 00:00:00')) {
-                                 value = value.substring(0, value.length - 9);
+                                value = value.substring(0, value.length - 9);
                             }
                         }
                     } catch (parseError) {
@@ -96,7 +91,7 @@ function parseGoogleSheetJSON(jsonText) {
                         value = ''; // В случае ошибки парсинга, устанавливаем пустую строку
                     }
                 }
-
+                
                 // Преобразование булевых значений в читаемые строки (если необходимо)
                 if (typeof value === 'boolean') {
                     value = value ? 'Да' : 'Нет';
@@ -196,8 +191,9 @@ function renderTable(data, containerId, headersMap, uniqueByKey = null, tableCla
         table.classList.add(tableClass);
     }
     const thead = table.createTHead();
-const tbody = table.createTBody();
-const headerRow = thead.insertRow();  // <-- Исправлено: теперь insertRow() на thead
+    const tbody = table.createTBody();
+    const headerRow = thead.insertRow();
+
     // Определяем заголовки для отображения. Если headersMap не предоставлен, используем ключи из первого объекта данных.
     const displayHeaders = headersMap && headersMap.length > 0 ? headersMap : Object.keys(processedData[0]).map(key => ({ key, label: key }));
 
@@ -263,7 +259,7 @@ function exportToCsv(data, filename, headersMap) {
 // --- Функция: Экспорт всех таблиц в один Excel файл с несколькими листами ---
 function exportToExcelMultipleSheets() {
     // Проверяем наличие данных
-    if (!materialsData.length && !balancesData.length && !transactionsData.length && !debtorsData.length) { // --- ОБНОВЛЕНО: ДОБАВЛЕН debtorsData ---
+    if (!materialsData.length && !balancesData.length && !transactionsData.length) {
         alert('Нет данных для экспорта');
         return;
     }
@@ -279,10 +275,9 @@ function exportToExcelMultipleSheets() {
             //{ key: 'Ед.изм.', label: 'Ед.изм.' },
             { key: 'Начальный остаток', label: 'Начальный остаток' },
             { key: 'Рабочее', label: 'Рабочее' },
-            { key: 'Не рабочее', label: 'Не рабочее' },
-            { key: 'Сейчас на складе', label: 'Сейчас на складе' } // Добавлен, если есть в данных
+            { key: 'Не рабочее', label: 'Не рабочее' }
         ];
-
+        
         // Преобразуем данные в формат для XLSX
         const materialsForExport = materialsData.map(row => {
             const exportRow = {};
@@ -324,20 +319,20 @@ function exportToExcelMultipleSheets() {
     // Лист 3: Транзакции (с учетом фильтра)
     if (transactionsData.length > 0) {
         const transactionHeaders = [
-            { key: 'Дата', label: 'Дата' },
+            { key: 'Столбец1', label: 'Дата' },
             { key: 'Сотрудник', label: 'Сотрудник' },
             { key: 'Поставщик', label: 'Поставщик' },
             { key: 'Материал', label: 'Материал' },
             { key: 'Тип', label: 'Тип' },
             { key: 'Статус', label: 'Статус' },
-            { key: 'Кол-во', label: 'Количество' },
+            { key: 'Кол-во', label: 'Кол-во' },
             { key: 'Текущий остаток', label: 'Текущий остаток' }
         ];
 
         // Получаем текущий лимит для транзакций
         const transactionLimitSelect = document.getElementById('transaction-limit');
         const currentLimit = transactionLimitSelect ? (transactionLimitSelect.value === 'all' ? 'all' : parseInt(transactionLimitSelect.value)) : 10;
-
+        
         let dataToExport = [...transactionsData];
         if (currentLimit !== 'all' && typeof currentLimit === 'number' && dataToExport.length > currentLimit) {
             dataToExport = dataToExport.slice(-currentLimit);
@@ -355,43 +350,6 @@ function exportToExcelMultipleSheets() {
         XLSX.utils.book_append_sheet(workbook, transactionsWorksheet, 'Транзакции');
     }
 
-    // --- НОВЫЙ ЛИСТ: Должники ---
-    if (debtorsData.length > 0) {
-        // ЗАГОЛОВКИ ДОЛЖНЫ БЫТЬ ТОЧНО ТАКИМИ ЖЕ, КАК В ВАШИХ GOOGLE ТАБЛИЦАХ (в UTF-8)!
-        // Проверьте названия столбцов в листе "Должники" вашей Google Таблицы.
-        // Например: { key: 'Имя Должника', label: 'Должник' }, { key: 'Сумма Долга', label: 'Сумма' }
-        const debtorsHeaders = [
-            { key: 'ID', label: 'ID' }, // Пример, замените на реальные заголовки
-            { key: 'Сотрудник', label: 'Сотрудник' },
-            { key: 'Блок питания 12В', label: 'Блок питания 12В' },
-            { key: 'Блок питания принтер 24В', label: 'Блок питания принтер 24В' },
-            { key: 'Материнская плата для терминала в комплекте', label: 'Материнская плата для терминала в комплекте' },
-            { key: 'Монитор 18.5 широкоформат', label: 'Монитор 18.5 широкоформат' },
-            { key: 'Стекло 17’', label: 'Стекло 17’' },
-            { key: 'Контролька', label: 'Контролька' },
-            { key: 'Жестак', label: 'Жесткий диск' },
-             { key: 'Монитор 17 квадрат', label: 'Монитор 17 квадрат' },
-            { key: 'Принтер VKP80', label: 'Принтер VKP80' },
-            { key: 'Плата mei', label: 'Плата mei' },
-            { key: 'Кулер', label: 'Кулер' },
-            { key: 'Сом платы', label: 'Сом платы' },
-            { key: 'Блок питания', label: 'Блок питания' },
-            { key: 'Принтер Custom TG-2480', label: 'Принтер Custom TG-2480' }
-            // Добавьте все заголовки столбцов, которые есть в вашем листе "Должники"
-        ];
-
-        const debtorsForExport = debtorsData.map(row => {
-            const exportRow = {};
-            debtorsHeaders.forEach(header => {
-                exportRow[header.label] = row[header.key] || '';
-            });
-            return exportRow;
-        });
-
-        const debtorsWorksheet = XLSX.utils.json_to_sheet(debtorsForExport);
-        XLSX.utils.book_append_sheet(workbook, debtorsWorksheet, 'Должники'); // Название листа в Excel
-    }
-
     // Сохраняем файл
     const currentDate = new Date().toLocaleDateString('ru-RU').replace(/\./g, '-');
     const filename = `warehouse_report_${currentDate}.xlsx`;
@@ -401,10 +359,12 @@ function exportToExcelMultipleSheets() {
 // --- Загрузка и отображение данных при загрузке страницы (ЕДИНСТВЕННЫЙ DOMContentLoaded) ---
 document.addEventListener('DOMContentLoaded', async () => {
     // - Загружаем материалы -
+    // ЗАГОЛОВКИ ДОЛЖНЫ БЫТЬ ТОЧНО ТАКИМИ ЖЕ, КАК В ВАШИХ GOOGLE ТАБЛИЦАХ (в UTF-8)!
     const materialHeaders = [
         { key: 'ID', label: 'ID' },
-        { key: 'Материал', label: 'Материал' },
-        { key: 'Начальный остаток', label: 'Начальный остаток' },
+        { key: 'Материал', label: 'Материал' }, // Убедитесь, что 'Название' - точное название столбца в Google Sheets
+        //{ key: 'Ед.изм.', label: 'Ед.изм.' },
+        { key: 'Начальный остаток', label: 'Начальный остаток' }, // Если такого столбца нет, закомментируйте или удалите
         { key: 'Рабочее', label: 'Рабочее' },
         { key: 'Не рабочее', label: 'Не рабочее' },
         { key: 'Сейчас на складе', label: 'Сейчас на складе' }
@@ -421,10 +381,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // - Загружаем Движение материалов (Остатки) -
+    // ЗАГОЛОВКИ ДОЛЖНЫ БЫТЬ ТОЧНО ТАКИМИ ЖЕ, КАК В ВАШИХ GOOGLE ТАБЛИЦАХ (в UTF-8)!
     const balancesHeaders = [
         { key: 'ID', label: 'ID' },
         { key: 'Материал', label: 'Материал' },
-        { key: 'Начальный остаток', label: 'Начальный остаток' },
+        { key: 'Начальный остаток', label: 'Начальный остаток' }, // Возможно, это не совпадает с реальным заголовком в таблице.
+                                                                           // Убедитесь, что 'Наличие (принято по акту ед.)' - точное название столбца.
         { key: 'Приход', label: 'Приход' },
         { key: 'Расход', label: 'Расход' },
         { key: 'Списание', label: 'Списание' },
@@ -439,6 +401,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const quantityKey = 'Сейчас на складе';
         tempBalancesData = tempBalancesData.filter(row => {
             const quantity = row[quantityKey];
+            // Убедитесь, что Остаток - это число и больше 0
             return typeof quantity === 'number' && !isNaN(quantity) && quantity > 0;
         });
 
@@ -460,6 +423,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // --- Загружаем транзакции ---
+    // ЗАГОЛОВКИ ДОЛЖНЫ БЫТЬ ТОЧНО ТАКИМИ ЖЕ, КАК В ВАШИХ GOOGLE ТАБЛИЦАХ (в UTF-8)!
     const transactionHeaders = [
         { key: 'Дата', label: 'Дата' },
         { key: 'Сотрудник', label: 'Сотрудник' },
@@ -473,12 +437,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     const loadedTransactions = await loadGoogleSheetData(TRANSACTIONS_URL);
     if (loadedTransactions) {
         transactionsData = loadedTransactions; // Сохраняем все транзакции
-
+        
+        // Получаем выбранный лимит из выпадающего списка или используем значение по умолчанию (10)
         const transactionLimitSelect = document.getElementById('transaction-limit');
         const currentLimit = transactionLimitSelect ? (transactionLimitSelect.value === 'all' ? 'all' : parseInt(transactionLimitSelect.value)) : 10;
 
         renderTable(transactionsData, 'transactions-table-container', transactionHeaders, null, 'transactions-table', currentLimit);
 
+        // Добавляем обработчик события для изменения лимита
         if (transactionLimitSelect) {
             transactionLimitSelect.addEventListener('change', (event) => {
                 const newLimit = event.target.value === 'all' ? 'all' : parseInt(event.target.value);
@@ -492,41 +458,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         const loading = document.getElementById('transactions-loading');
         if (loading) loading.style.display = 'none';
     }
-
-    // --- Загружаем Должников ---
-    // ЗАГОЛОВКИ ДОЛЖНЫ БЫТЬ ТОЧНО ТАКИМИ ЖЕ, КАК В ВАШИХ GOOGLE ТАБЛИЦАХ (в UTF-8)!
-    // Проверьте названия столбцов в листе "Должники" вашей Google Таблицы.
-    const debtorsHeaders = [
-            { key: 'ID', label: 'ID' }, // Пример, замените на реальные заголовки
-            { key: 'Сотрудник', label: 'Сотрудник' },
-            { key: 'Блок питания 12В', label: 'Блок питания 12В' },
-            { key: 'Блок питания принтер 24В', label: 'Блок питания принтер 24В' },
-            { key: 'Материнская плата для терминала в комплекте', label: 'Материнская плата для терминала в комплекте' },
-            { key: 'Монитор 18.5 широкоформат', label: 'Монитор 18.5 широкоформат' },
-            { key: 'Стекло 17’', label: 'Стекло 17’' },
-            { key: 'Контролька', label: 'Контролька' },
-            { key: 'Жестак', label: 'Жесткий диск' },
-            { key: 'Монитор 17 квадрат', label: 'Монитор 17 квадрат' },
-            { key: 'Принтер VKP80', label: 'Принтер VKP80' },
-            { key: 'Плата mei', label: 'Плата mei' },
-            { key: 'Кулер', label: 'Кулер' },
-            { key: 'Сом платы', label: 'Сом платы' },
-            { key: 'Блок питания', label: 'Блок питания' },
-            { key: 'Принтер Custom TG-2480', label: 'Принтер Custom TG-2480' }
-        // Добавьте все остальные заголовки столбцов, которые есть в вашем листе "Должники"
-    ];
-
-    const loadedDebtors = await loadGoogleSheetData(DEBTORS_URL);
-    if (loadedDebtors) {
-        debtorsData = loadedDebtors;
-        renderTable(debtorsData, 'debtors-table-container', debtorsHeaders, null, 'debtors-table');
-    } else {
-        const container = document.getElementById('debtors-table-container');
-        if (container) container.innerHTML = '<p class="error-message">Не удалось загрузить данные о должниках. Проверьте URL или настройки публикации.</p>';
-        const loading = document.getElementById('debtors-loading');
-        if (loading) loading.style.display = 'none';
-    }
-
 
     // --- Обработчики кнопок ---
     const exportExcelButton = document.getElementById('exportExcelButton');
@@ -550,7 +481,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             try {
                 // Увеличиваем масштаб и улучшаем качество
-                const canvas = await html2canvas(element, {
+                const canvas = await html2canvas(element, { 
                     scale: 1.5, // Увеличиваем масштаб для лучшего качества
                     useCORS: true,
                     allowTaint: true,
@@ -559,7 +490,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     width: element.scrollWidth,
                     height: element.scrollHeight
                 });
-
+                
                 const imgData = canvas.toDataURL('image/png');
                 const imgWidth = 595 - 2 * margin; // A4 width in pt minus margins
                 const pageHeight = 842 - 2 * margin; // A4 height in pt minus margins
@@ -592,3 +523,4 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 });
+
