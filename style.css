@@ -325,4 +325,7 @@ hr {
         padding: 6px 10px;
     }
 }
-
+#exportExcelButton {
+    display: none; /* Скрывает элемент */
+    /* Или можно использовать: visibility: hidden; */
+}
