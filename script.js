@@ -196,9 +196,8 @@ function renderTable(data, containerId, headersMap, uniqueByKey = null, tableCla
         table.classList.add(tableClass);
     }
     const thead = table.createTHead();
-    const tbody = table.createTBody();
-    const headerRow = thead.insertCell(); // Используем insertCell() для th
-
+const tbody = table.createTBody();
+const headerRow = thead.insertRow(); // <-- Исправлено: теперь insertRow() на thead
     // Определяем заголовки для отображения. Если headersMap не предоставлен, используем ключи из первого объекта данных.
     const displayHeaders = headersMap && headersMap.length > 0 ? headersMap : Object.keys(processedData[0]).map(key => ({ key, label: key }));
 
