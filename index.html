@@ -3,61 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Контроль склада</title>
+    <title>Учет материалов на складе</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="manifest" href="/Terminal/manifest.json">
-    <link rel="apple-touch-icon" href="/Terminal/icons/icon-192x192.png">
-    
- <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="apple-mobile-web-app-title" content="ТКО Склад">
-    <link rel="apple-touch-icon" href="/Terminal/icons/icon-192x192.png">
-    
-    <!-- Библиотеки для экспорта -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-   
-</head>
+    </head>
 <body>
     <div class="container">
-        <h1>Визуальный контроль склада</h1>
+        <h1>Учет материалов на складе</h1>
 
-       <div class="controls">
-    <button id="exportExcelButton" disabled>Экспорт в Excel</button>
-</div>
+        <div class="controls">
+            </div>
 
-        
         <div class="data-section">
             <h2>Движение материалов</h2>
-            <p id="balances-loading" class="loading">Загрузка остатков...</p>
-            <div id="balances-table-container">
-            </div>
+            <p id="balances-loading" class="loading">Загрузка движения материалов...</p>
+            <div id="balances-table-container"></div>
         </div>
-        <hr>
 
         <div class="data-section">
-            <h2>Последние транзакции</h2>
-            <div class="transaction-controls">
-                <label for="transaction-limit">Показать:</label>
-                <select id="transaction-limit">
-                    <option value="5">5 записей</option>
-                    <option value="10" selected>10 записей</option>
-                    <option value="20">20 записей</option>
-                    <option value="50">50 записей</option>
-                    <option value="100">100 записей</option>
-                    <option value="all">Все записи</option>
-                </select>
-            </div>
-            <p id="transactions-loading" class="loading">Загрузка транзакций...</p>
-            <div id="transactions-table-container">
-                <table class="transactions-table"></table>
-            </div>
+            <h2>Долги по сотрудникам</h2>
+            <p id="debtors-loading" class="loading">Загрузка долгов...</p>
+            <div id="debtors-table-container"></div>
         </div>
-
     </div>
 
     <script src="script.js"></script>
 </body>
 </html>
-
