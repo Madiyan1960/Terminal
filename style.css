@@ -26,26 +26,11 @@ h1, h2 {
     margin-bottom: 20px;
 }
 
-/* СТИЛИ ДЛЯ БЛОКА КНОПОК УПРАВЛЕНИЯ */
+/* СТИЛИ ДЛЯ БЛОКА КНОПОК УПРАВЛЕНИЯ (теперь пустой) */
 .controls {
-    text-align: center;
-    margin-bottom: 15px;
-}
-
-/* СТИЛИ ДЛЯ КНОПОК */
-button {
-    background-color: #007bff;
-    color: white;
-    padding: 12px 25px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.3s ease;
-}
-
-button:hover {
-    background-color: #0056b3;
+    /* Эти стили можно удалить, так как нет кнопок: */
+    /* text-align: center; */
+    /* margin-bottom: 15px; */
 }
 
 /* СТИЛИ ДЛЯ РАЗДЕЛОВ ДАННЫХ (каждая таблица в своем разделе) */
@@ -53,61 +38,24 @@ button:hover {
     margin-bottom: 40px;
 }
 
-/* СТИЛИ ДЛЯ ЭЛЕМЕНТОВ УПРАВЛЕНИЯ ТРАНЗАКЦИЯМИ */
-.transaction-controls {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 15px;
-    justify-content: flex-end; /* Выравнивание по правому краю */
-}
-
-.transaction-controls label {
-    font-size: 16px;
-    color: #333333;
-    font-weight: 500;
-}
-
-.transaction-controls select {
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 16px;
-    background-color: white;
-    cursor: pointer;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-.transaction-controls select:focus {
-    outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
-}
-
-/* ОБЩИЕ СТИЛИ ДЛЯ ВСЕХ ТАБЛИЦ */
+/* --- ОБЩИЕ СТИЛИ ДЛЯ ВСЕХ ТАБЛИЦ (базовые границы, отступы) --- */
 table {
-    width: 100%;
-    border-collapse: collapse; /* Важно для отображения границ ячеек */
+    /* Убрал width: auto; и table-layout: auto; отсюда, чтобы применять их выборочно */
+    border-collapse: collapse;
     margin-top: 20px;
     background-color: #fff;
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    /* table-layout: fixed; */ /* Оставил закомментированным по вашему желанию для автоширины */
+    width: 100%; /* По умолчанию таблицы будут занимать 100% ширины контейнера */
 }
 
 /* СТИЛИ ДЛЯ ЗАГОЛОВКОВ ТАБЛИЦ И ЯЧЕЕК ДАННЫХ */
 th, td {
-    border: 1px solid #ddd; /* <-- ГРАНИЦЫ НАСТРАИВАЮТСЯ ЗДЕСЬ */
-    padding: 2px 3px;
+    border: 1px solid #ddd;
+    padding: 8px 10px;
     text-align: left;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap; /* Если нужно, чтобы текст не переносился */
     font-size: 14px;
-    /* Если вы хотите, чтобы текст, несмотря на nowrap, все же разрывался в любом месте слова: */
-    /* word-break: break-all; */ 
-    /* Или, если вы хотите, чтобы текст переносился на новую строку: */
-    white-space: normal;
-    /* word-break: break-word; */
+    /* Убрал white-space: nowrap; overflow: hidden; text-overflow: ellipsis; отсюда */
+    /* Теперь они будут применяться только к таблице должников, если нужно */
 }
 
 /* СТИЛИ ДЛЯ ЗАГОЛОВКОВ СТОЛБЦОВ ТАБЛИЦЫ */
@@ -115,7 +63,7 @@ th {
     background-color: #f2f2f2;
     font-weight: bold;
     color: #555;
-    text-align: center; /* <-- ДОБАВЬТЕ ЭТУ СТРОКУ */
+    text-align: center;
 }
 
 /* СТИЛИ ДЛЯ ЧЕРЕДУЮЩИХСЯ СТРОК ТАБЛИЦЫ (эффект "зебры") */
@@ -155,58 +103,102 @@ hr {
     margin: -20px 0;
 }
 
-/* СТИЛИ ДЛЯ PDF (скрытие элементов, которые не должны быть в PDF) */
-.pdf-hidden {
-    display: none !important; 
+/* --- СПЕЦИФИЧЕСКИЕ СТИЛИ ДЛЯ ТАБЛИЦЫ "ДВИЖЕНИЕ МАТЕРИАЛОВ" --- */
+/* (класс balances-table присваивается в script.js) */
+.balances-table {
+    /* По умолчанию будет 100% ширина, и текст будет переноситься */
+    /* Если вы хотите, чтобы здесь была фиксированная ширина столбцов, 
+       раскомментируйте и настройте секции width */
+    /* table-layout: fixed; */ 
+}
+/* .balances-table th:nth-child(1) { width: 5%; }
+.balances-table th:nth-child(2) { width: 35%; }
+... */
+
+
+/* --- СПЕЦИФИЧЕСКИЕ СТИЛИ ДЛЯ ТАБЛИЦЫ "ДОЛГИ ПО СОТРУДНИКАМ" --- */
+/* (класс debtors-table присваивается в script.js) */
+.debtors-table {
+    width: auto; /* Позволяет таблице сжиматься по содержимому */
+    table-layout: auto; /* КЛЮЧЕВОЕ СВОЙСТВО: автоматическая ширина столбцов */
 }
 
-/* Стили для элементов, которые должны быть видны только в PDF (сейчас не используются) */
-.pdf-only {
-    display: none;
+.debtors-table th, 
+.debtors-table td {
+    white-space: nowrap; /* Важно: предотвращает перенос текста, заставляя столбец расширяться */
+    overflow: hidden; /* Скрывает содержимое, которое выходит за рамки ячейки */
+    text-overflow: ellipsis; /* Добавляет "..." если текст обрезан */
+}
+/* Можно настроить ширину определенных колонок для должников, если white-space: nowrap; создает слишком широкие колонки */
+/* .debtors-table th:nth-child(1) { width: 50px; } */ /* Пример для номера п/п */
+/* .debtors-table th:nth-child(2) { min-width: 150px; } */ /* Пример для фамилии */
+
+
+/* --- АДАПТИВНЫЕ СТИЛИ ДЛЯ МОБИЛЬНЫХ УСТРОЙСТВ --- */
+
+/* Медиазапрос для экранов шириной до 768px */
+@media (max-width: 768px) {
+    .container {
+        padding: 5px;
+    }
+    
+    h1 {
+        font-size: 24px;
+        margin-bottom: 10px;
+    }
+    h2 {
+        font-size: 20px;
+        margin-bottom: 5px;
+    }
+
+    /* Адаптация таблиц для мобильных - ОБЩИЕ ПРАВИЛА */
+    .data-section {
+        overflow-x: auto; /* Позволяет таблице скроллиться по горизонтали */
+        -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+        min-width: 400px; /* Минимальная ширина таблицы, чтобы она не сжималась слишком сильно */
+    }
+
+    /* На мобильных устройствах обычно лучше разрешить перенос текста для всех таблиц */
+    th, td {
+        white-space: normal; /* Разрешаем перенос текста по умолчанию для всех таблиц */
+        word-break: break-word; /* Разрывать длинные слова */
+        overflow: visible; /* Убрать скрытие переполнения */
+        text-overflow: clip; /* Убрать троеточие */
+        padding: 5px;
+    }
+
+    /* НО для таблицы должников, если вы хотите сохранить nowrap на мобильных */
+    .debtors-table th,
+    .debtors-table td {
+        /* white-space: nowrap; */ /* Закомментируйте, если хотите перенос и для должников на мобильных */
+        /* overflow: hidden; */
+        /* text-overflow: ellipsis; */
+    }
 }
 
-/* СТИЛИ ДЛЯ НАСТРОЙКИ ШИРИНЫ КОЛОНОК ДЛЯ КАЖДОЙ ТАБЛИЦЫ (ПРИМЕНЯЮТСЯ НА ЭКРАНЕ) */
-/* Убедитесь, что сумма процентов для каждой таблицы составляет 100% или близко к этому */
+/* Медиазапрос для очень маленьких экранов */
+@media (max-width: 480px) {
+    .container {
+        padding: 5px;
+    }
+    h1 {
+        font-size: 20px;
+    }
+    h2 {
+        font-size: 18px;
+    }
+}
 
-/* Таблица "Материалы" (class="materials-table") */
-.materials-table th:nth-child(1) { width: 5%; } /* ID */
-.materials-table th:nth-child(2) { width: 35%; } /* Название */
-.materials-table th:nth-child(3) { width: 10%; }  /* Ед. изм. */
-.materials-table th:nth-child(4) { width: 10%; } /* Мин. остаток */
-.materials-table th:nth-child(5) { width: 10%; } /* Кол-во на складе */
-.materials-table th:nth-child(6) { width: 10%; } /* Остаток */
-.materials-table th:nth-child(7) { width: 10%; } /* Оповещение */
-
-/* Таблица "Остатки" (class="balances-table") */
-.balances-table th:nth-child(1) { width: 5%; } /* ID */
-.balances-table th:nth-child(2) { width: 35%; } /* Материал */
-.balances-table th:nth-child(3) { width: 10%; } /* Наличие (принято по акту ед.) */
-.balances-table th:nth-child(4) { width: 10%; } /* Приход */
-.balances-table th:nth-child(5) { width: 10%; } /* Расход */
-.balances-table th:nth-child(6) { width: 10%; } /* Списание */
-.balances-table th:nth-child(7) { width: 10%; } /* Возврат */
-.balances-table th:nth-child(8) { width: 10%; } /* Остаток */
-
-/* Таблица "Транзакции" (class="transactions-table") */
-.transactions-table th:nth-child(1) { width: 10%; }
-.transactions-table th:nth-child(2) { width: 15%; }
-.transactions-table th:nth-child(3) { width: 15%; }
-.transactions-table th:nth-child(4) { width: 20%; }
-.transactions-table th:nth-child(5) { width: 8%; }
-.transactions-table th:nth-child(6) { width: 7%; }
-.transactions-table th:nth-child(7) { width: 12%; }
-.transactions-table th:nth-child(8) { width: 13%; }
-
-/* МЕДИА-ЗАПРОСЫ ДЛЯ ПЕЧАТИ (Когда документ печатается или сохраняется как PDF) */
+/* --- СТИЛИ ДЛЯ ПЕЧАТИ (Print styles) --- */
 @media print {
     .container {
         box-shadow: none;
         padding: 0;
     }
     .controls {
-        display: none;
-    }
-    .transaction-controls {
         display: none;
     }
     h1 {
@@ -218,8 +210,11 @@ hr {
         margin-bottom: 5px;
     }
     table {
-        font-size: 10px; /* Уменьшаем шрифт для печати */
+        font-size: 10px;
         page-break-inside: auto;
+        /* На печати, если нужен table-layout: auto;, убедитесь, что он не конфликтует */
+        table-layout: auto; /* Обычно для печати тоже лучше auto */
+        width: 100%; /* На печати можно вернуть 100% ширины, чтобы использовать всю страницу */
     }
     tr {
         page-break-inside: avoid;
@@ -231,101 +226,12 @@ hr {
     .loading {
         display: none;
     }
-}
 
-/* - АДАПТИВНЫЕ СТИЛИ ДЛЯ МОБИЛЬНЫХ УСТРОЙСТВ - */
-
-/* Медиазапрос для экранов шириной до 768px (типично для планшетов и телефонов) */
-@media (max-width: 768px) {
-    /* Обновляем контейнер, чтобы он лучше работал на маленьких экранах */
-    .container {
-        padding: 5px; /* Уменьшаем внутренние отступы, чтобы было больше места */
-    }
-
-    /* Делаем кнопки гибкими и даем им отступы */
-    .controls {
-        display: flex; /* Делаем контейнер кнопок флекс-контейнером */
-        flex-direction: column; /* Располагаем кнопки в столбец на мобильных */
-        gap: 15px; /* Добавляем промежуток между кнопками */
-        align-items: stretch; /* Растягиваем кнопки на всю доступную ширину */
-        margin-bottom: 10px;
-    }
-
-    button {
-        width: 100%; /* Каждая кнопка занимает всю ширину контейнера */
-        padding: 15px 10px; /* Увеличиваем вертикальный паддинг для удобства нажатия */
-        font-size: 16px; /* Немного уменьшаем шрифт, если нужно */
-    }
-
-    /* Адаптация элементов управления транзакциями для мобильных */
-    .transaction-controls {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
-        justify-content: flex-start;
-    }
-
-    .transaction-controls select {
-        width: 100%;
-        max-width: 200px;
-    }
-
-    /* Уменьшаем шрифты заголовков на мобильных, если они слишком большие */
-    h1 {
-        font-size: 24px;
-        margin-bottom: 10px;
-    }
-    h2 {
-        font-size: 20px;
-        margin-bottom: 5px;
-    }
-
-    /* Адаптация таблиц для мобильных */
-    /* Вариант 1: Скролл (предпочтительно для широких таблиц) */
-    .data-section {
-        overflow-x: auto; /* Позволяет таблице скроллиться по горизонтали */
-        -webkit-overflow-scrolling: touch; /* Улучшает скроллинг на iOS */
-    }
-
-    table {
-        min-width: 600px; /* Минимальная ширина таблицы, чтобы она не сжималась слишком сильно */
-    }
-    
-    /* Если вы решили сделать текст переносимым, удалите 'nowrap' и 'ellipsis' из общих стилей th, td */
+    /* На печати для всех таблиц можно разрешить перенос текста, чтобы не выходило за границы страницы */
     th, td {
-        white-space: normal; /* Разрешаем перенос текста */
-        word-break: break-word; /* Разрывать длинные слова */
-        overflow: visible; /* Убрать скрытие переполнения */
-        text-overflow: clip; /* Убрать троеточие */
+        white-space: normal;
+        word-break: break-word;
+        overflow: visible;
+        text-overflow: clip;
     }
-}
-
-/* Медиазапрос для очень маленьких экранов (например, iPhone 5/SE) */
-@media (max-width: 480px) {
-    .container {
-        padding: 5px;
-    }
-    button {
-        font-size: 14px;
-        padding: 12px 8px;
-    }
-    h1 {
-        font-size: 20px;
-    }
-    h2 {
-        font-size: 18px;
-    }
-    
-    .transaction-controls label {
-        font-size: 14px;
-    }
-    
-    .transaction-controls select {
-        font-size: 14px;
-        padding: 6px 10px;
-    }
-}
-#exportExcelButton {
-    display: none; /* Скрывает элемент */
-    /* Или можно использовать: visibility: hidden; */
 }
