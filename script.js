@@ -248,23 +248,27 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Теперь формируем новый массив в требуемом формате
         let currentDebtorsData = [];
-        let counter = 1;
+        let uniqueEmployeeCounter = 0; // Счетчик для уникальных фамилий
 
         // Сортируем сотрудников по фамилии для последовательности
         const sortedEmployees = Array.from(summaryMap.keys()).sort();
 
         sortedEmployees.forEach(employee => {
+            uniqueEmployeeCounter++; // Увеличиваем счетчик для каждой новой уникальной фамилии
             const debts = summaryMap.get(employee);
             // Сортируем материалы для каждого сотрудника
             const sortedMaterials = Object.keys(debts).sort();
 
+            let isFirstMaterialForEmployee = true; // Флаг для первой записи сотрудника
+
             sortedMaterials.forEach(material => {
                 currentDebtorsData.push({
-                    '№ п/п': counter++,
-                    'Фамилия должника': employee,
+                    '№ п/п': isFirstMaterialForEmployee ? uniqueEmployeeCounter : '', // Номер только для первой записи
+                    'Фамилия должника': isFirstMaterialForEmployee ? employee : '', // Фамилия только для первой записи
                     'Материал': material,
                     'Количество': debts[material]
                 });
+                isFirstMaterialForEmployee = false; // После первой записи, сбрасываем флаг
             });
         });
 
