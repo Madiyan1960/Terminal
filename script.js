@@ -8,9 +8,9 @@ const TRANSACTIONS_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_I
 
 // Объявляем переменные для хранения данных таблиц в глобальной области видимости
 let balancesData = [];
-let debtorsSummaryData = []; // Для агрегированных данных по должникам
+let debtorsSummaryData = []; // Будет хранить детализированные данные по должникам
 
-// --- Функция: Парсинг JSON-ответа от Google Sheets ---
+// --- Функция: Парсинг JSON-ответа от Google Sheets (без изменений) ---
 function parseGoogleSheetJSON(jsonText) {
     try {
         const jsonString = jsonText.substring(jsonText.indexOf('{'), jsonText.lastIndexOf('}') + 1);
@@ -91,7 +91,7 @@ function parseGoogleSheetJSON(jsonText) {
     }
 }
 
-// --- Функция для загрузки данных ---
+// --- Функция для загрузки данных (без изменений) ---
 async function loadGoogleSheetData(url) {
     if (!url) {
         console.error('URL для загрузки данных не предоставлен.');
@@ -114,7 +114,7 @@ async function loadGoogleSheetData(url) {
     }
 }
 
-// --- Функция для отображения данных в таблице ---
+// --- Функция для отображения данных в таблице (без изменений) ---
 function renderTable(data, containerId, headersMap, uniqueByKey = null, tableClass = null, limit = 'all') {
     const container = document.getElementById(containerId);
     if (!container) {
@@ -187,7 +187,7 @@ function renderTable(data, containerId, headersMap, uniqueByKey = null, tableCla
 
 // --- Загрузка и отображение данных при загрузке страницы ---
 document.addEventListener('DOMContentLoaded', async () => {
-    // - Загружаем Движение материалов (Остатки) -
+    // - Загружаем Движение материалов (Остатки) - (без изменений)
     const balancesHeaders = [
         { key: 'ID', label: 'ID' },
         { key: 'Материал', label: 'Материал' },
@@ -231,6 +231,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const debtorsTransactions = loadedTransactions.filter(row => row['Тип'] === 'Должен');
         const summaryMap = new Map();
 
+        // Сначала агрегируем долги, чтобы получить общие суммы по каждому сотруднику и материалу
         debtorsTransactions.forEach(transaction => {
             const employee = transaction['Сотрудник'];
             const material = transaction['Материал'];
@@ -245,27 +246,39 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         });
 
-        debtorsSummaryData = Array.from(summaryMap.entries()).map(([employee, debts]) => {
-            const rowObject = { 'Сотрудник': employee };
-            for (const material in debts) {
-                rowObject[material] = debts[material];
-            }
-            return rowObject;
-        });
+        // Теперь формируем новый массив в требуемом формате
+        let currentDebtorsData = [];
+        let counter = 1;
 
-        const debtorsTableHeaders = [{ key: 'Сотрудник', label: 'Сотрудник' }];
-        const uniqueMaterialsInDebts = new Set();
-        debtorsSummaryData.forEach(row => {
-            Object.keys(row).forEach(key => {
-                if (key !== 'Сотрудник') {
-                    uniqueMaterialsInDebts.add(key);
-                }
+        // Сортируем сотрудников по фамилии для последовательности
+        const sortedEmployees = Array.from(summaryMap.keys()).sort();
+
+        sortedEmployees.forEach(employee => {
+            const debts = summaryMap.get(employee);
+            // Сортируем материалы для каждого сотрудника
+            const sortedMaterials = Object.keys(debts).sort();
+
+            sortedMaterials.forEach(material => {
+                currentDebtorsData.push({
+                    '№ п/п': counter++,
+                    'Фамилия должника': employee,
+                    'Материал': material,
+                    'Количество': debts[material]
+                });
             });
         });
-        Array.from(uniqueMaterialsInDebts).sort().forEach(material => {
-            debtorsTableHeaders.push({ key: material, label: material });
-        });
 
+        debtorsSummaryData = currentDebtorsData; // Обновляем глобальную переменную
+
+        // Определяем заголовки для новой структуры таблицы должников
+        const debtorsTableHeaders = [
+            { key: '№ п/п', label: '№ п/п' },
+            { key: 'Фамилия должника', label: 'Фамилия должника' },
+            { key: 'Материал', label: 'Материал' },
+            { key: 'Количество', label: 'Количество' }
+        ];
+
+        // Рендерим "Долги по сотрудникам" с новой структурой
         renderTable(debtorsSummaryData, 'debtors-table-container', debtorsTableHeaders, null, 'debtors-table', 'all');
 
     } else {
@@ -274,7 +287,4 @@ document.addEventListener('DOMContentLoaded', async () => {
         const debtorsLoading = document.getElementById('debtors-loading');
         if (debtorsLoading) debtorsLoading.style.display = 'none';
     }
-
-    // --- Обработчики кнопок: теперь нет никаких кнопок в секции controls ---
-    // printPdfButton и его обработчик удалены.
 });
